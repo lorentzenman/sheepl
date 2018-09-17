@@ -25,7 +25,7 @@ python3 sheepl.py --interactive
 
 ## AutoIT3
 
-You can download the AutoIT3 runtime and the Au2EXE compiler here:
+You can download the AutoIT3 runtime and the Aut2EXE compiler here:
 [AutoIT3 Download](https://www.autoitscript.com/site/autoit/downloads/)
 
 The following video is an overview of Sheepl 0.1 as the beta release.
