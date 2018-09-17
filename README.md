@@ -19,6 +19,10 @@ Sheepl has two modes, commandline and interactive where commandline can be used 
 python3 sheepl.py --name TBone --total_time=2h --wordfile "c:\\users\\matt\\Desktop\\matt.doc" --inputtext "content/if.txt" --cmd --cc "ipconfig /all" --cc "whoami" --cc "netstat -anto -p tcp"')
 ```
 
+```
+python3 sheepl.py --interactive
+```
+
 The following video is an overview of Sheepl 0.1 as the beta release.
 
 ## YouTube Video
@@ -30,4 +34,4 @@ The following video is an overview of Sheepl 0.1 as the beta release.
 * The amazing AutoIT Language https://www.autoitscript.com
 * Jonathan Bennett for creating ^^
 * The amazing Python3 language https://www.python.org
-* Fellow Spiders for tolerating me harping on about this stuff
+* Fellow Spiders for all the support
