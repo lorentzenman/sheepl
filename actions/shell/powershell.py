@@ -51,7 +51,13 @@ Func PowerShell_%s()
         for command in commands:
             # these are individual send commands so don't need to be
             # wrapped in a block
-            typing_text += (space + 'Send("' + command + '{ENTER}")\n')
+            # check to see if the command is an object pipeline command
+            if ("{" in command or "?" in command or "$_" in command or "|" in command):
+                # send in the raw keystroke option
+                 typing_text += (space + 'Send("' + command + '", 1)\n')
+                 typing_text += (space + 'Send("{ENTER}")\n')
+            else:
+                 typing_text += (space + 'Send("' + command + '{ENTER}")\n')
             # add in random delay between 2 seconds and 2 minutes
             command_delay = str(random.randint(2000, 12000))
             typing_text += (space + "sleep(" + command_delay + ")\n")

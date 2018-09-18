@@ -2,3 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+
+# au3 files
+*.au3
+
+# any content
+*.txt
+*.doc
+*.docx
