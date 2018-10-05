@@ -1,13 +1,12 @@
 """
 ; < ----------------------------------- >
-; <          CMD Interaction
+; <          RUN Interaction
 ; < ----------------------------------- >
 
 
 Creates the autoIT stub code to be passed into the master compile
 
-: Takes a supplied list of commands, opens CMD, types with a delay
-: between 2 seconds and 20 seconds between each command
+: Takes a supplied list of commands, opens RUN,
 : the master script will already define the typing speed as part of the declarations
 
 """
@@ -21,31 +20,27 @@ class RunCommand(object):
         self.id = id
 
 
-    def func_dec(self, id):
+    def func_dec(self):
         function_declaration = """
 ; < ----------------------------------- >
 ; <          CMD Interaction
 ; < ----------------------------------- >
 
 
-CMD_%s()
-
-""" % (id)
+"""
         return function_declaration
 
 
-    def open_cmd(self, id):
+    def open_run(self, id, command):
         open_cmd = """
 
-Func CMD_%s()
+Func %s_RUN()
     Send("#r")
     ; Wait 10 seconds for the Run dialogue window to appear.
     WinWaitActive("Run", "", 10)
-    Send("cmd{ENTER}")
-    WinWaitActive("[CLASS:ConsoleWindowClass]", "", 10)
-    SendKeepActive("[CLASS:ConsoleWindowClass]")
+    Send("{ENTER}")
 
-    """ %(id)
+    """ %(id, command)
 
         return open_cmd
 
@@ -88,7 +83,7 @@ Func CMD_%s()
 
     def create(self):
         """ creates the autoIT script """
-        autoIT_script = (self.func_dec(self.id) +
+        autoIT_script = (self.func_dec() +
         self.open_cmd(self.id) +
         self.typing_block(self.commands) +
         self.close_cmd()

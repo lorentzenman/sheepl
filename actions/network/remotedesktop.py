@@ -21,19 +21,18 @@ class RDPConnection(object):
         self.id = id
 
 
-    def func_dec(self, id):
+    def func_dec(self):
         function_declaration = """
 
 ; < ----------------------------------- >
 ; <      Remote Desktop Interaction
 ; < ----------------------------------- >
 
-RDP_%s()""" % (id)
+"""
         return function_declaration
 
     def open_rdp(self, computer, username, password, id):
         open_rdp = """
-
 
 Func RDP_%s()
     Send("#r")
@@ -93,7 +92,7 @@ Func RDP_%s()
     def create(self):
         """ creates the master RDP solution """
 
-        autoIT_script = (self.func_dec(self.id) +
+        autoIT_script = (self.func_dec() +
         self.open_rdp(self.computer, self.username, self.password, self.id) +
         self.close_rdp()
         )

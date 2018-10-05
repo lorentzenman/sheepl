@@ -28,10 +28,8 @@ class CMDShell(object):
 ; < ----------------------------------- >
 
 
-CMD_%s()
-
 Func CMD_%s()
-""" % (id, id)
+""" % (id)
 
         return function_declaration
 

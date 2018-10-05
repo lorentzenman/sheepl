@@ -10,7 +10,7 @@ def parse_arguments():
     main_parser.add_argument("--name", help="The name of the person (spaces will be converted to underscore)")
     #main_parser.add_argument("--role", choices=('admin', 'responder', 'user', 'attacker'), help="Specified the role of the Sherson")
     main_parser.add_argument("--type", help="Specifies the key delay for typing", default=40)
-    main_parser.add_argument("--loop", action="store_true", help="Loops the program based around the total_time, will create actions and then repeat", default=False)
+    main_parser.add_argument("--loop", action="store_false", help="Loops the program based around the total_time, will create actions and then repeat", default=True)
     main_parser.add_argument("--colour", action="store_false", help="Colours the output in the terminal", default=True)
     #main_parser.add_argument("--no-tray", action="store_true", help="Removes compiled script tray icon", default=False)
     #main_parser.add_argument("--profile", help="Specifies a profile and will import commands based on the JSON file")

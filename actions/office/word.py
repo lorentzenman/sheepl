@@ -23,17 +23,14 @@ class WordDocument(object):
         self.id = id
 
 
-    def func_dec(self, id):
+    def func_dec(self):
         # this overides the function in the parent class
         function_declaration = """
 ; < ----------------------------------- >
 ; <         Word Interaction
 ; < ----------------------------------- >
 
-
-Word_%s()
-
-""" % (id)
+"""
         return function_declaration
 
 
@@ -120,7 +117,7 @@ Func Word_{}()
         #print(self.new_document(self.id))
         #print(self.typing_block(self.input_text))
         #print(self.save_file(self.save_name))
-        autoIT_script = (self.func_dec(self.id) +
+        autoIT_script = (self.func_dec() +
         self.new_document(self.id) +
         self.typing_block(self.input_text) +
         self.save_file(self.save_name) +

@@ -70,12 +70,13 @@ class Sheepl(object):
     #headers = .action_headers()
 
 
-    def __init__(self, name, total_time, type, cl):
+    def __init__(self, name, total_time, type, cl, loop):
 
         self.name = name
         self.total_time = total_time
         self.type = type
         self.cl = cl
+        self.loop = loop
 
         #print("[*] Creating file : {}.au3".format(name.lower()))
         #file_name = name.lower() + '.au3'
@@ -151,7 +152,7 @@ class Sheepl(object):
         """
         self.tasks[task] = output
 #> # DEBUG:
-#        print(self.tasks)
+        print(self.tasks)
 
 
     def list_tasks(self):
@@ -162,6 +163,32 @@ class Sheepl(object):
         for task, output in self.tasks.items():
             print("[>] The person will create {}".format(task))
             print("----> The output will be {}".format(output))
+
+
+    def autoIT_start(self, total_tasks, task_names, sleep_list_length, sleep_time_list):
+        """
+        Takes in the current tasks length, and the defined sleep times
+        and builds the start of the autoIT file with global arrays
+        support looping switch so on every loop the task list gets cloned to
+        a new array that gets shuffled. This means that every loop the task list
+        is randomised and the sleep times are randomised
+        uses list comprehension to walk over the pushed in lists
+        moar random to add to your random
+        """
+
+        task_list_output = """
+; define global task list
+Global $aTasks[{}] = {} """.format(total_tasks, ([t for t in task_names]))
+
+        sleep_time_output = """
+; creates Sleep Times array
+Global $aSleepTimes[{}] = {}
+; copies original array just encase the task list borks
+$aRandTasks = $aTasks
+        """.format(sleep_list_length, ([str(s) for s in sleep_time_list]))
+
+        return task_list_output, sleep_time_output
+
 
 
     def write_file(self, file_name):
@@ -191,6 +218,7 @@ class Sheepl(object):
 
         print("SLEEP TIMES ARE {}".format(sleep_time_list))
 
+
         with open(file_name, 'a') as of:
             """
             Queries task list, gets the key (assigned action) and then
@@ -211,22 +239,65 @@ class Sheepl(object):
 
             of.write('#include <Word.au3>\n')
             of.write('#include <IE.au3>\n')
+            of.write('#include <Array.au3>\n')
             of.write(self.typing_speed)
 
+
+            task_list_output, sleep_time_output = self.autoIT_start(
+                                                    total_tasks,
+                                                    self.tasks.keys(),
+                                                    len(sleep_time_list),
+                                                    sleep_time_list)
+
+            of.write(task_list_output)
+            of.write(sleep_time_output)
+
+            if self.loop == True:
+                of.write("""
+; this is the loop that works if they have loop switch in sheepl set
+; this is the master loop - will got forever
+While 1
+   ; this needs to grab the last shuffled sleep entry from tasks
+    _ArrayShuffle($aRandTasks)
+	; clone the sleep array into this while loop
+	$aRandSleepTimes = $aSleepTimes
+	; shuffle this array so it's unique everytime
+	_ArrayShuffle($aRandSleepTimes)
+
+   ConsoleWrite("[!] Going round the loop" & @CRLF)
+   For $i In $aRandTasks
+      ; start with a sleep Value
+      ; pops the last shuffled value from the sleep array and assigns
+      Local $vSleepTime =_ArrayPop($aRandSleepTimes)
+      ConsoleWrite("[!] I will now sleep for : " & $vSleepTime & @CRLF)
+      ; Sets the sleep time
+      Sleep($vSleepTime)
+	  ;ConsoleWrite($i & @CRLF)
+	  ; gets the current function from the shuffled array
+	  $curfunc = ($i & @CRLF)
+	  ConsoleWrite($curfunc)
+	  ; call the function from the shuffled array
+	  ; the magic call
+	  Call($i)
+
+   Next
+
+WEnd
+""")
             # now loop round for output
             for task_output in self.tasks.values():
                 of.write(task_output)
                 # now grab random sleep time from chopped up total task time
-                sleep_time = sleep_time_list.pop()
-                of.write("""
-; -------------------------------------------->
-; {} will now sleep for {} seconds
-
-sleep({})
-
-; -------------------------------------------->
-
-            """.format(self.name, str(sleep_time / 1000), str(sleep_time)))
+    #             sleep_time = sleep_time_list.pop()
+    #             of.write("""
+    # ; -------------------------------------------->
+    # ; {} will now sleep for {} seconds
+    #
+    # sleep({})
+    #
+    # ; -------------------------------------------->
+    #
+    #         """.format(self.name, str(sleep_time / 1000), str(sleep_time)))
 
 
 #######################################################################
@@ -439,10 +510,18 @@ Sheepl Interactive Console
                     typing_speed = 40
 
                 print(cl.yellow("Typing speed is {}".format(typing_speed)))
+
+                loop_question = self.check_input(cl.green("[~] Do you want the tasks to loop? <yes> or <no> : "), str.lower, range_=('yes', 'no'))
+
+                if loop_question == "yes":
+                    loop = True
+                else:
+                    loop = False
+
                 # Create Sheepl Object
                 # this should just be a call and all this stuff should be inside init...then it
                 # can be called with csh.
-                csh = Sheepl(name, total_time, typing_speed, cl)
+                csh = Sheepl(name, total_time, typing_speed, cl, loop)
                 name = name.replace(' ', '_')
                 print("[*] Creating file : {}.au3".format(name.lower()))
                 file_name = name.lower() + '.au3'
@@ -453,8 +532,8 @@ Sheepl Interactive Console
                 print("\n")
 
                 # adding first task as a tea break to create a random initial sleep_time
-
-                csh.add_task(str(id) + '_teabreak', csh.tea_break_task())
+                # need to review this now as based on a shuffled array list,
+                csh.add_task(str(id) + '_Teabreak', csh.tea_break_task())
 
                 #####################################
                 #  BEGIN Console
@@ -501,7 +580,7 @@ Sheepl Interactive Console
 
                         if task == 'teabreak':
                             # creates random sleep time slice
-                            csh.add_task(str(id) + '_teabreak', csh.tea_break_task())
+                            csh.add_task('TeaBreak_' + str(id), csh.tea_break_task())
                             id += 1
                             if self.check_add_more_tasks(cl) == 'yes':
                                 continue
@@ -524,7 +603,7 @@ Sheepl Interactive Console
                             from actions.office.word import WordDocument
 
                             word_file = WordDocument(input_file, output_file, str(id))
-                            csh.add_task(str(id) + '_word', word_file.create())
+                            csh.add_task('Word_' + str(id), word_file.create())
                             #of.write(word_file.create())
                             id += 1
                             if self.check_add_more_tasks(cl) == 'yes':
@@ -551,7 +630,7 @@ Sheepl Interactive Console
                                     break
 
                             cmd_shell = CMDShell(commands, str(id))
-                            csh.add_task(str(id) + '_cmd', cmd_shell.create())
+                            csh.add_task('CMD_' + str(id), cmd_shell.create())
                             for command in commands:
                                 print('[-] - {} will type "{}" into the remote session'.format(cl.green("'" + csh.name + "'"), command))
 
@@ -582,7 +661,7 @@ Sheepl Interactive Console
                                     break
 
                             powershell = PowerShell(commands, str(id))
-                            csh.add_task(str(id) + '_powershell', powershell.create())
+                            csh.add_task('Powershell_' + str(id), powershell.create())
                             #of.write(cmd_shell.create())
                             for command in commands:
                                 print('[-] - They will type "{}" into the remote session'.format(command))
@@ -628,7 +707,7 @@ Sheepl Interactive Console
                             #     commands = []
 
                             rdp_conn = RDPConnection(rdp , rdp_user , rdp_password, str(id))
-                            csh.add_task(str(id) + '_rdp', rdp_conn.create())
+                            csh.add_task('RDP_' + str(id), rdp_conn.create())
                             id += 1
                             if self.check_add_more_tasks(cl) == 'yes':
                                 continue
@@ -647,7 +726,7 @@ Sheepl Interactive Console
                             command = input("[>] Enter the URL destination to be browsed > ")
 
                             ie = IEBrowser(command, str(id))
-                            csh.add_task(str(id) + '_ie', ie.create())
+                            csh.add_task('IE_' + str(id), ie.create())
                             print('[-] - {} will browse to "{}" using Internet Explorer'.format(cl.green("'" + csh.name + "'"), command))
 
 
@@ -716,7 +795,7 @@ def main():
     # ------->
     # Parse time
     # goes through supplied arguments and creates tasks
-    csh = Sheepl(args.name, args.total_time, args.type, cl)
+    csh = Sheepl(args.name, args.total_time, args.type, cl, args.loop)
     csh.say_hello()
 
     # add the tea break task
@@ -733,7 +812,7 @@ def main():
         print("[!] - Word Interaction")
         print('[-] - Word output file is "{}" and user will type contents of "{}"'.format(args.wordfile, args.inputtext))
         word_file = WordDocument(args.inputtext , args.wordfile, str(id))
-        csh.add_task(str(id) + '_word', word_file.create())
+        csh.add_task('Word_' + str(id), word_file.create())
 
 
     #############################################
@@ -772,7 +851,7 @@ def main():
         print(cl.green("[!] - Powershell Interaction"))
         print("[^] - Issuing the following powershell commands")
         ps_shell = PowerShell(args.pc, str(id))
-        csh.add_task(str(id) + '_powershell' , ps_shell.create())
+        csh.add_task('Powershell_' + str(id), ps_shell.create())
         for command in args.pc:
             print('[-] - They will type "{}" into the PowerShell prompt'.format(command))
 
@@ -787,7 +866,7 @@ def main():
         print(cl.green("[!] - Command Shell Interaction"))
         print("[!] - Issuing the following cmd commands")
         cmd_shell = CMDShell(args.cc, str(id))
-        csh.add_task(str(id) + '_cmd', cmd_shell.create())
+        csh.add_task('CMD_' + str(id), cmd_shell.create())
         for command in args.cc:
             print('[-] - They will type "{}" into the CMD Shell'.format(command))
 
@@ -801,7 +880,7 @@ def main():
         id += 1
         print(cl.green("[!] - Internet Explorer Interaction"))
         ie = IEBrowser(args.url, str(id))
-        csh.add_task(str(id) + '_ie' , ie.create())
+        csh.add_task('IE_' + str(id), ie.create())
         print('[-] - They will browse to "{}" using Internet Explorer'.format(args.url))
 
 
@@ -819,7 +898,7 @@ def main():
             for command in args.rdp_command:
                 print('[-] - They will type "{}" into the remote session'.format(command))
         rdp_conn = RDPConnection(args.rdp , args.rdp_user , args.rdp_password, str(id))
-        csh.add_task(str(id) + '_rdp', rdp_conn.create())
+        csh.add_task('RDP_' + str(id), rdp_conn.create())
 
 
     #############################################

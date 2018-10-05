@@ -13,16 +13,13 @@ class PowerShell(object):
         self.id = id
 
 
-    def func_dec(self, id):
+    def func_dec(self):
         function_declaration = """
     ; < ----------------------------------- >
     ; <       PowerShell Interaction
     ; < ----------------------------------- >
 
-
-    PowerShell_%s()
-
-    """ % (id)
+    """
         return function_declaration
 
 
@@ -81,7 +78,7 @@ Func PowerShell_%s()
 
     def create(self):
         """ creates the autoIT script """
-        autoIT_script = (self.func_dec(self.id) +
+        autoIT_script = (self.func_dec() +
         self.open_powershell(self.id) +
         self.typing_block(self.commands) +
         self.close_powershell()
