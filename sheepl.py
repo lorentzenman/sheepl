@@ -152,7 +152,7 @@ class Sheepl(object):
         """
         self.tasks[task] = output
 #> # DEBUG:
-        print(self.tasks)
+        #print(self.tasks)
 
 
     def list_tasks(self):
@@ -497,11 +497,11 @@ Sheepl Interactive Console
 
 
                 total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
-                if not total_time.endswith("m") or not total_time.endswith("h"):
-                    print(cl.red("[!] You need to supply correct format"))
-                    print(cl.yellow("[?] needs to end in 'm' for minutes or 'h' for hours"))
-                    # bit dirty calling the input again but my while loops sucked - will fix
-                    total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
+                # if not total_time.endswith("m") or not total_time.endswith("h"):
+                #     print(cl.red("[!] You need to supply correct format"))
+                #     print(cl.yellow("[?] needs to end in 'm' for minutes or 'h' for hours"))
+                #     # bit dirty calling the input again but my while loops sucked - will fix
+                #     total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
 
 
                 print("[?] How fast can {} type? <default is 40ms between key>".format(cl.green(name)))

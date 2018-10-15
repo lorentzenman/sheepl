@@ -28,7 +28,7 @@ class IEBrowser(object):
 
 Func IE_%s()
 
-    Local $Ie = _IECreate("%s",1,1,1)
+    Local $oIE = _IECreate("%s",1,1,1)
     Sleep(2000)
     WinWaitActive("Windows Internet Explorer")
     SendKeepActive("Windows Internet Explorer")
