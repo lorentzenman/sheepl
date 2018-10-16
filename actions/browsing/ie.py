@@ -30,15 +30,16 @@ Func IE_%s()
 
     Local $oIE = _IECreate("%s",1,1,1)
     Sleep(2000)
-    WinWaitActive("Windows Internet Explorer")
-    SendKeepActive("Windows Internet Explorer")
-    WinSetState("Windows Internet Explorer","",@SW_MAXIMIZE)
+    ;WinWaitActive("Windows Internet Explorer")
+    ;SendKeepActive("Windows Internet Explorer")
+    ;WinSetState("Windows Internet Explorer","",@SW_MAXIMIZE)
     ; hardcoded sleep for now
     ; will convert to AutoIT random
     ; this is also where the IE interaction such as logging in etc will happen,
     ; spawning new tabs etc
     ; prob need a call out function to trigger a subroutine
-    Sleep(10000)
+    Sleep(20000)
+    Send("!{F4}")
 
         """ % (id, destination_url)
         return url
