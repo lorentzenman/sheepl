@@ -284,6 +284,36 @@ While 1
 
 WEnd
 """)
+
+
+            else:
+                of.write("""
+	$aRandSleepTimes = $aSleepTimes
+	; shuffle this array so it's unique everytime
+	; it gets baked into the file
+	_ArrayShuffle($aRandSleepTimes)
+
+   ConsoleWrite("[!] Going round the loop" & @CRLF)
+   For $i In $aTasks
+      ; start with a sleep Value
+      ; pops the last shuffled value from the sleep array and assigns
+      Local $vSleepTime =_ArrayPop($aRandSleepTimes)
+      ConsoleWrite("[!] I will now sleep for : " & $vSleepTime & @CRLF)
+      ; Sets the sleep time
+      Sleep($vSleepTime)
+	  ;ConsoleWrite($i & @CRLF)
+	  ; gets the current function from the shuffled array
+	  $curfunc = ($i & @CRLF)
+	  ConsoleWrite($curfunc)
+	  ; call the function from the shuffled array
+	  ; the magic call
+	  Call($i)
+
+   Next
+
+""")
+
+
             # now loop round for output
             for task_output in self.tasks.values():
                 of.write(task_output)
