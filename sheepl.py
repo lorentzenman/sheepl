@@ -52,8 +52,7 @@ def signal_handler(sig, frame):
  @@@@@@@@@@@@@@@
     ||      ||
     ~~      ~~
----------------------------------------------
-        """)
+---------------------------------------------""")
     sys.exit(0)
 
 
@@ -438,13 +437,13 @@ Sheepl Interactive Console
         Exits the program
         """
         print("[<] ------------------------------------------ [>]")
-        print("""                       /\___
-            @@@@@@@@@@@  O  \\
-         @@@@@@@@@@@@@@@____/--[ later ]
-         @@@@@@@@@@@@@@@
-            ||      ||
-            ~~      ~~
-        ---------------------------------------------
+        print("""                          /\___
+               @@@@@@@@@@@  O  \\
+            @@@@@@@@@@@@@@@____/--[ later ]
+            @@@@@@@@@@@@@@@
+               ||      ||
+               ~~      ~~
+    ------------------------------------------
             """)
         print("[!] >>>           {}           <<< [!]".format(self.cl.red("Exiting Sheepl")))
         print("[<] ------------------------------------------ [>]")
@@ -520,7 +519,7 @@ Sheepl Interactive Console
 
             elif command.startswith("create"):
                 print(cl.yellow("OK, Let's create some sheepl"))
-                name = input("#> Enter the sheps name : ")
+                name = input("#> Enter the sheepl's name : ")
 
                 # check the input for spacing
                 print("[?] How long would you like {} to take to complete tasks?".format(cl.green(name)))
