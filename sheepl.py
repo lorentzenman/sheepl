@@ -518,7 +518,7 @@ Sheepl Interactive Console
 
             elif command.startswith("create"):
                 print(cl.yellow("OK, Let's create some sheepl"))
-                name = input("#> Enter the sheepl's name : ")
+                name = input("#> Enter the shep's name : ")
 
                 # check the input for spacing
                 print("[?] How long would you like {} to take to complete tasks?".format(cl.green(name)))
@@ -627,13 +627,20 @@ Sheepl Interactive Console
                             input_file = input("Enter the input file : ")
                             print("[?] Now specify the output path and the Word filename e.g. 'c:\\users\\matt\\Desktop\\path.docx'")
                             output_file = input("Enter the output file : ")
-                            # import the action
-                            from actions.office.word import WordDocument
-
-                            word_file = WordDocument(input_file, output_file, str(id))
-                            csh.add_task('Word_' + str(id), word_file.create())
-                            #of.write(word_file.create())
-                            id += 1
+                            # Check if both input_file and output_file values have been supplied
+                            if not input_file.strip() or not output_file.strip():
+                                print("[!] Input and Output File must both be supplied. Aborting task...")
+                            else:
+                                import os.path
+                                if os.path.isfile(input_file):
+                                    # import the action
+                                    from actions.office.word import WordDocument
+                                    word_file = WordDocument(input_file, output_file, str(id))
+                                    csh.add_task('Word_' + str(id), word_file.create())
+                                    #of.write(word_file.create())
+                                    id += 1
+                                else:
+                                    print("[!] Unable to locate input file. Aborting task...")
                             if self.check_add_more_tasks(cl) == 'yes':
                                 continue
                             else:
