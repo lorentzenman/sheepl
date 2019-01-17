@@ -351,7 +351,7 @@ class SheeplConsole(object):
 #    """ Prints the main menu """
         console_banner = """
 Sheepl Interactive Console
-[<] ------------------------------------------ [>]
+---------------------------------------------- [>]
 [!] type 'help' or '?' for command list
 """
 
