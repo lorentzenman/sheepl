@@ -1,0 +1,44 @@
+{
+  "sheepl" :
+  {
+    "name": "bigPhil",
+    "total_time": "54m",
+    "typing_speed": 85,
+    "loop": "True",
+    "icon": "False",
+    "tasks": [
+      { 
+        "task"  : "RemoteDesktop",
+        "computer" : "1.1.1.1",
+        "username" : "FORTIS\\password",
+        "password" : "SDKJASDI£idkq340dadxmaorjqmd",
+        "subtasks" : [
+            {
+              "task" : "PowerShell",
+              "cmd" : [
+                "write-host 'I am a subtask'",
+                "write-host ' this is all somehing really new'",
+                "ls",
+                "write-host 'Getting the correct is very important'"
+              ]
+            },
+            {
+              "task" : "CommandShell",
+              "cmd" : [
+                "netstat -atno",
+                "hostname",
+                "systeminfo"
+              ]
+            }
+          ]
+      },
+      {
+        "task"  : "PowerShell",
+        "cmd" : [
+          "gwmi win32_service",
+          "$psversiontable"
+        ]
+      }
+    ]
+  }
+}

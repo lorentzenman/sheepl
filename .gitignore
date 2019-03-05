@@ -11,3 +11,27 @@ __pycache__/
 *.txt
 *.doc
 *.docx
+
+# ignore anything inside content
+content/*
+
+# ignore anythng inside output
+
+output/*
+
+
+# vscode paths
+.vscode/
+.vscode/settings.json
+
+# DSStore Paths
+.DS_Store
+
+
+# GUI 
+# testing
+gui/
+
+
+# testing for new typewriter class
+tasks/typing/
