@@ -455,7 +455,7 @@ class RemoteDesktopAutoITBlock(object):
         typing_text = ''
 
         #for key, value in self.commands:
-        for key in self.csh.subtasks.items():
+        for key, value in self.csh.subtasks.items():
             #print("The key is >> {}".format(key))
         
             typing_text += ("\n; ############################################\n")

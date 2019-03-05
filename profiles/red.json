@@ -1,25 +1,25 @@
 {
   "sheepl" :
   {
-    "name": "bigPhil",
-    "total_time": "54m",
-    "typing_speed": 85,
+    "name": "rdpUser",
+    "total_time": "3m",
+    "typing_speed": 55,
     "loop": "True",
     "icon": "False",
     "tasks": [
       { 
         "task"  : "RemoteDesktop",
-        "computer" : "1.1.1.1",
-        "username" : "FORTIS\\password",
-        "password" : "SDKJASDI£idkq340dadxmaorjqmd",
+        "computer" : "10.2.241.20",
+        "username" : "FORTIS\\aaron.brady",
+        "password" : "IndexOverview1",
         "subtasks" : [
             {
               "task" : "PowerShell",
               "cmd" : [
                 "write-host 'I am a subtask'",
-                "write-host ' this is all somehing really new'",
+                "gwmi win32_bios",
                 "ls",
-                "write-host 'Getting the correct is very important'"
+                "$psversiontable"
               ]
             },
             {
@@ -36,7 +36,7 @@
         "task"  : "PowerShell",
         "cmd" : [
           "gwmi win32_service",
-          "$psversiontable"
+          "ls c:\\"
         ]
       }
     ]

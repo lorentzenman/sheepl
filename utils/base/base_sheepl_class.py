@@ -46,7 +46,7 @@ class Sheepl(object):
         self.cl = cl
         self.interactive = interactive
         # needs to be a string for JSON
-        self.icon = "False"
+        self.icon = "True"
         self.birth = False
         
         # First create task Object
