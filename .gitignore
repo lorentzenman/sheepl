@@ -16,8 +16,7 @@ __pycache__/
 content/*
 
 # ignore anythng inside output
-
-output/*
+*.exe
 
 
 # vscode paths

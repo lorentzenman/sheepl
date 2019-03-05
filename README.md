@@ -62,7 +62,7 @@ The following video is quick demo of Sheepl 2.0 as the current release.
 
 ## YouTube Video
 
-[![Alt text](https://img.youtube.com/vi/OQdulPd97y4/0.jpg)](https://www.youtube.com/watch?v=OQdulPd97y4)
+[![Alt text](https://img.youtube.com/vi/S4Zvw-IG1Pc/0.jpg)](https://www.youtube.com/watch?v=S4Zvw-IG1Pc)
 
 
 ## Acknowledgements
