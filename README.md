@@ -32,6 +32,10 @@ python3 sheepl.py --interactive
 
 It is now possible to build and import sequences of Sheepl commands via JSON profiles
 
+```
+python3 sheepl.py --profile profiles/red.json
+```
+
 ### Templates
 
 You can now specify a boiler plate template file. This is achieved by using the following:
