@@ -365,20 +365,9 @@ class CreateTemplate(object):
 
         class {}:
 
-            def __init__(self, interactive, counter, csh, cl):
-                \"""
-                >> interactive, id, csh, cl all come form the baseclass
-
-                By using super, we can still maintain the dynamic module import structures
-                found in the sheepl console, but we can add custom functionality
-
-                \"""
-                # Calling super to inherit from the BaseTask __init__
-                super({}, self).__init__(interactive, counter, csh, cl)
-
-                # task specific arguments for object
-                # otherwise you would need to mess around with the constructor
-
+            def __init__(self, csh, cl, **kwargs):
+                self.__dict__.update(kwargs)
+                self.csh = csh
 
                 # Check if this task requires an AutoIT Specifc UDF
                 # this gets declared here and then pushed into the master
@@ -390,13 +379,13 @@ class CreateTemplate(object):
                 # Check to make sure it's not already there, and if not add
                 # if not self.autoIT_include_statement in csh.autoIT_UDF_includes:
                 #     csh.autoIT_UDF_includes.append(self.autoIT_include_statement)
-            
-                if interactive:
+
+                if csh.interactive == True:
                     # create the task based sub console
                     self.TaskConsole = TaskConsole(csh, cl)
-                    self.TaskConsole.cmdloop()            
+                    self.TaskConsole.cmdloop()             
+  
                 
-
 
             # --------------------------------------------------->
             #   End {} Constructor
@@ -515,6 +504,8 @@ class CreateTemplate(object):
                     function_declaration += "{}_{}()".format(str(self.counter))
 
                 return textwrap.dedent(function_declaration)
+
+                \"""
         """.format(self.name, '{}')
         
         return textwrap.dedent(autoIT_block_definition)
@@ -567,13 +558,13 @@ class CreateTemplate(object):
 
             return textwrap.dedent(_open_{})   
             """.format(
-                    self.name.lower(),
+                    self.name,
                     '{ENTER}', '{ENTER}', '{ENTER}',
-                    self.name.lower(), 
+                    self.name, 
                     self.name, '{}',
                     self.name,
                     '{ENTER}',
-                    self.name.lower()
+                    self.name
                 )
 
         return textwrap.indent(textwrap.dedent(open_program_call), self.indent_space)
