@@ -136,12 +136,8 @@ class TaskConsole(BaseCMD):
 
     def do_cmd(self, command):
         """
-        First checks to see if a new RunCommand Block has been started
-        if so allows the command to be issued and then runs some checks
-        or prompts to start a new interaction using 'new'
-        Specify the command to run in the shell
+        This is the command to execute from the 'run' prompt
         """
-        # Uncomment
         
         if command:
             if self.taskstarted == True:   
@@ -152,6 +148,15 @@ class TaskConsole(BaseCMD):
                     print(self.cl.red("[!] <ERROR> Start this with 'new' from the menu."))
                 print("[!] <ERROR> You need to supply the command for typing")
         
+
+
+    def do_assigned(self, arg):
+        """ 
+        Get the current list of assigned CMD commands
+        """
+        print(self.cl.green("[?] Currently Assigned Commands "))
+        print("[>] {}".format(self.command))
+
 
 
     def do_complete(self, arg):
@@ -302,10 +307,10 @@ class RunCommandAutoITBlock(object):
         ;         RunCommand Interaction        
         ; < ------------------------------------ >
 
+        """
         if self.csh.creating_subtasks == False:
             function_declaration += "RunCommand_{}()".format(str(self.counter))
-
-        """
+        
         return textwrap.dedent(function_declaration)
 
 
@@ -338,9 +343,9 @@ class RunCommandAutoITBlock(object):
             WinWaitActive("Run", "", 10)
             ; note this needs to be escaped
             ; <PROGRAM EXECUTION>
-            Send('{}{ENTER}') 
+            Send('{}{}') 
 
-        """.format(self.counter, self.command)
+        """.format(self.counter, self.command, '{ENTER}')
 
         return textwrap.dedent(_open_runcommand)   
 
@@ -352,7 +357,6 @@ class RunCommandAutoITBlock(object):
         """
 
         end_func = """
-
             Send("!{F4}")
 
         EndFunc
