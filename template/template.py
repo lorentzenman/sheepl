@@ -500,12 +500,12 @@ class CreateTemplate(object):
 
         autoIT_block_definition += """
 
+                \"""
                 if self.csh.creating_subtasks == False:
                     function_declaration += "{}_{}()".format(str(self.counter))
 
                 return textwrap.dedent(function_declaration)
-
-                \"""
+    
         """.format(self.name, '{}')
         
         return textwrap.dedent(autoIT_block_definition)
