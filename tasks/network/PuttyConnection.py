@@ -447,6 +447,12 @@ class PuttyConnectionAutoITBlock:
                 Send("{}")
                 Send("!o")
 
+
+                ; need an if else check here--
+                ; if the window title is "PuTTY Security Alert then this is asking for host verification
+                ; so need to send the ALT Y to this to accept the warning
+                ; else this is the active PUTTY class
+
                 WinWaitActive("[CLASS:PuTTY]", "", 10)
                 SendKeepActive("[CLASS:PuTTY]")
 
