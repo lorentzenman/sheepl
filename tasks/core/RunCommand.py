@@ -357,7 +357,6 @@ class RunCommandAutoITBlock(object):
         """
 
         end_func = """
-            Send("!{F4}")
 
         EndFunc
 
