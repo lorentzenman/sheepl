@@ -411,7 +411,7 @@ class RemoteDesktopAutoITBlock(object):
             ; note this needs to be escaped
             ; <PROGRAM EXECUTION>
             Send("mstsc{}")
-            WinWaitActive("Remote Destop Connection", "", 10)
+            WinWaitActive("Remote Desktop Connection", "", 10)
             ;SendKeepActive("[CLASS:OpusApp]") get the name of this class
             ; Send ALT 'o' to open the RDP options
             Send("!o")

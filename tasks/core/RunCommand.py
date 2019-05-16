@@ -345,6 +345,9 @@ class RunCommandAutoITBlock(object):
             ; <PROGRAM EXECUTION>
             Send('{}{}') 
 
+            ; add in a check to see if a not found window appears
+            
+
         """.format(self.counter, self.command, '{ENTER}')
 
         return textwrap.dedent(_open_runcommand)   

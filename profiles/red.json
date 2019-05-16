@@ -9,9 +9,9 @@
     "tasks": [
       { 
         "task"  : "RemoteDesktop",
-        "computer" : "10.2.241.20",
-        "username" : "FORTIS\\aaron.brady",
-        "password" : "IndexOverview1",
+        "computer" : "1.1.1.1",
+        "username" : "user@domain",
+        "password" : "######",
         "subtasks" : [
             {
               "task" : "PowerShell",
