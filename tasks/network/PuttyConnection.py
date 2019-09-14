@@ -445,7 +445,7 @@ class PuttyConnectionAutoITBlock:
 
                 Send("!n")
                 Send("{}")
-                Send("!o")
+                ;Send("!o")
 
 
                 ; need an if else check here--
