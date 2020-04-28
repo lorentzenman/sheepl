@@ -48,7 +48,7 @@
         and this creates a Profile() object. See profile.py
 """
 
-__author__ = ""
+__author__ = "Matt Lorentzen"
 __license__ = "MIT"
 
 import cmd
@@ -360,7 +360,7 @@ class RunCommandAutoITBlock(object):
         """
 
         end_func = """
-
+	WinClose("Run")
         EndFunc
 
         """
