@@ -17,6 +17,7 @@ content/*
 
 # ignore anythng inside output
 *.exe
+*.au3
 
 
 # vscode paths
