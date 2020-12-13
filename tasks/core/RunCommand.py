@@ -19,7 +19,7 @@
 
  General Notes:
     The textwrap import is used to keep the AutoIT functions indented in code
-    as this messes with the python code (back off OCD) when it's manually 
+    as this messes with the python code (back off OCD) when it's manually
     appearing to hang outside of the class declarations and also stops code collapse in IDEs.
     So when creating code specific to the AutoIT functions just use tabs to indent insitu
     and the textwarp library will strip all leading tabs from the beginning of the AutoIT block.
@@ -35,13 +35,13 @@
         Once all the arguments are complete
         build the do_complete function out by passing the arguments
         as keywords to the staticmethod of the task object
-        <TaskName>.create_autoIT_block(self.csh, 
+        <TaskName>.create_autoIT_block(self.csh,
                                         # add in other arguments
                                         # for object constructor
-                                        # ---------------------> 
+                                        # --------------------->
                                         parm1=self.parm1_value,
                                         parm2=self.parm3_value
-                                        # ---------------------> 
+                                        # --------------------->
                                         )
     Non-Interactive Profile
         This takes an input from the sheepl object
@@ -83,19 +83,20 @@ class TaskConsole(BaseCMD):
 
         # Override the defined task name
         self.taskname = 'RunCommand'
-        # Overrides Base Class Prompt Setup 
+        # Overrides Base Class Prompt Setup
         self.baseprompt = cl.yellow('{} >: runcommand :> '.format(csh.name.lower()))
         self.prompt = self.baseprompt
 
-        # creating my own 
+        # creating my own
         self.introduction = """
         ----------------------------------
         [!] RunCommand Interaction.
         Type help or ? to list commands.
         ----------------------------------
         1: Start a new block using 'new'
-        2: ######### > add in steps
-        3: Complete the interaction using 'complete'
+        2: Basically anything that you want to pass to the run command
+        3: If it spawns errors, you can clean them out with 'killwindow <title>'
+        4: Complete the interaction using 'complete'
         """
         print(textwrap.dedent(self.introduction))
 
@@ -118,7 +119,7 @@ class TaskConsole(BaseCMD):
     # --------------------------------------------------->
 
     def do_new(self, arg):
-        """ 
+        """
         This command creates a new Word document
         """
         # Init tracking booleans
@@ -131,27 +132,27 @@ class TaskConsole(BaseCMD):
             print("[!] Starting : 'RunCommand_{}'".format(str(self.csh.counter.current())))
             # OCD Line break
             print()
-            self.prompt = self.cl.blue("[*] RunCommand_{}".format(str(self.csh.counter.current()))) + "\n" + self.baseprompt       
+            self.prompt = self.cl.blue("[*] RunCommand_{}".format(str(self.csh.counter.current()))) + "\n" + self.baseprompt
 
 
     def do_cmd(self, command):
         """
         This is the command to execute from the 'run' prompt
         """
-        
+
         if command:
-            if self.taskstarted == True:   
+            if self.taskstarted == True:
                 self.command = command
             else:
                 if self.taskstarted == False:
                     print(self.cl.red("[!] <ERROR> You need to start a new RunCommand Interaction."))
                     print(self.cl.red("[!] <ERROR> Start this with 'new' from the menu."))
                 print("[!] <ERROR> You need to supply the command for typing")
-        
+
 
 
     def do_assigned(self, arg):
-        """ 
+        """
         Get the current list of assigned CMD commands
         """
         print(self.cl.green("[?] Currently Assigned Commands "))
@@ -173,12 +174,12 @@ class TaskConsole(BaseCMD):
 
         # Call the static method in the task object
         if self.taskstarted:
-            RunCommand.create_autoIT_block(self.csh, 
+            RunCommand.create_autoIT_block(self.csh,
                                 # add in other arguments
                                 # for object constructor
-                                # ---------------------> 
+                                # --------------------->
                                 command = self.command
-                                # ---------------------> 
+                                # --------------------->
                                 )
 
         # now reset the tracking values and prompt
@@ -217,7 +218,7 @@ class RunCommand:
         if csh.interactive == True:
             # create the task based sub console
             self.TaskConsole = TaskConsole(csh, cl)
-            self.TaskConsole.cmdloop()             
+            self.TaskConsole.cmdloop()
 
 
 
@@ -231,7 +232,7 @@ class RunCommand:
     # --------------------------------------------------->
 
     """
-    These are all the elements that get passed into the 
+    These are all the elements that get passed into the
     @static method as keyword arguments
     Essentially, this is everything that needs to be passed
     to create the InternetExplorer object
@@ -261,9 +262,9 @@ class RunCommand:
                                 str(csh.counter.current()),
                                 # add in other arguments
                                 # for object constructor
-                                # ---------------------> 
+                                # --------------------->
                                 kwargs["command"]
-                                # ---------------------> 
+                                # --------------------->
                                 ).create()
                             )
 
@@ -304,13 +305,13 @@ class RunCommandAutoITBlock(object):
 
         function_declaration = """
         ; < ------------------------------------ >
-        ;         RunCommand Interaction        
+        ;         RunCommand Interaction
         ; < ------------------------------------ >
 
         """
         if self.csh.creating_subtasks == False:
             function_declaration += "RunCommand_{}()".format(str(self.counter))
-        
+
         return textwrap.dedent(function_declaration)
 
 
@@ -320,7 +321,7 @@ class RunCommandAutoITBlock(object):
         """
 
         """
-        # Note a weird bug that the enter needs to be 
+        # Note a weird bug that the enter needs to be
         # passed as format string argument as escaping
         # is ignored on a multiline for some reason
         # if it gets sent as an individual line as in text_typing_block()
@@ -343,24 +344,24 @@ class RunCommandAutoITBlock(object):
             WinWaitActive("Run", "", 10)
             ; note this needs to be escaped
             ; <PROGRAM EXECUTION>
-            Send('{}{}') 
+            Send('{}{}')
 
             ; add in a check to see if a not found window appears
-            
+
 
         """.format(self.counter, self.command, '{ENTER}')
 
-        return textwrap.dedent(_open_runcommand)   
+        return textwrap.dedent(_open_runcommand)
 
 
 
-    def close_RunCommand(self):     
+    def close_RunCommand(self):
         """
         Closes the RunCommand application function declaration
         """
 
         end_func = """
-	WinClose("Run")
+	    WinClose("Run")
         EndFunc
 
         """
@@ -368,7 +369,7 @@ class RunCommandAutoITBlock(object):
         return textwrap.dedent(end_func)
 
     def create(self):
-        """ 
+        """
         Grabs all the output from the respective functions and builds the AutoIT output
         """
 
@@ -380,4 +381,3 @@ class RunCommandAutoITBlock(object):
                         )
 
         return autoIT_script
-

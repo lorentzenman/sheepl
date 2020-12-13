@@ -19,7 +19,7 @@
 
  General Notes:
     The textwrap import is used to keep the AutoIT functions indented in code
-    as this messes with the python code (back off OCD) when it's manually 
+    as this messes with the python code (back off OCD) when it's manually
     appearing to hang outside of the class declarations and also stops code collapse in IDEs.
     So when creating code specific to the AutoIT functions just use tabs to indent insitu
     and the textwarp library will strip all leading tabs from the beginning of the AutoIT block.
@@ -35,13 +35,13 @@
         Once all the arguments are complete
         build the do_complete function out by passing the arguments
         as keywords to the staticmethod of the task object
-        <TaskName>.create_autoIT_block(self.csh, 
+        <TaskName>.create_autoIT_block(self.csh,
                                         # add in other arguments
                                         # for object constructor
-                                        # ---------------------> 
+                                        # --------------------->
                                         parm1=self.parm1_value,
                                         parm2=self.parm3_value
-                                        # ---------------------> 
+                                        # --------------------->
                                         )
     Non-Interactive Profile
         This takes an input from the sheepl object
@@ -85,19 +85,20 @@ class TaskConsole(BaseCMD):
 
         # Override the defined task name
         self.taskname = 'KeePass'
-        # Overrides Base Class Prompt Setup 
+        # Overrides Base Class Prompt Setup
         self.baseprompt = cl.yellow('{} >: keepass :> '.format(csh.name.lower()))
         self.prompt = self.baseprompt
 
-        # creating my own 
+        # creating my own
         self.introduction = """
         ----------------------------------
         [!] KeePass Interaction.
         Type help or ? to list commands.
         ----------------------------------
         1: Start a new block using 'new'
-        2: ######### > add in steps
-        3: Complete the interaction using 'complete'
+        2: This task takes in 'database_location' and 'masterpassword'
+        3: You can also supply the title to kill any open windows on loop
+        4: Complete the interaction using 'complete'
         """
         print(textwrap.dedent(self.introduction))
 
@@ -106,8 +107,7 @@ class TaskConsole(BaseCMD):
         # ----------------------------------- >
 
         self.database_location = ''
-        self.username = ''
-        self.password = ''
+        self.masterpassword = ''
 
 
     # --------------------------------------------------->
@@ -115,7 +115,7 @@ class TaskConsole(BaseCMD):
     # --------------------------------------------------->
 
     def do_new(self, arg):
-        """ 
+        """
         This command creates a new Word document
         """
         # Init tracking booleans
@@ -128,43 +128,37 @@ class TaskConsole(BaseCMD):
             print("[!] Starting : 'KeePass_{}'".format(str(self.csh.counter.current())))
             # OCD Line break
             print()
-            self.prompt = self.cl.blue("[*] KeePass_{}".format(str(self.csh.counter.current()))) + "\n" + self.baseprompt       
-
-
-    # def do_cmd(self, command):
-    #     """
-    #     First checks to see if a new KeePass Block has been started
-    #     if so allows the command to be issued and then runs some checks
-    #     or prompts to start a new interaction using 'new'
-    #     Specify the command to run in the shell
-    #     """
-    #     # Uncomment
-    #     """
-    #     if command:
-    #         if self.taskstarted == True:   
-    #             self.commands.append(command)
-    #         else:
-    #             if self.taskstarted == False:
-    #                 print(self.cl.red("[!] <ERROR> You need to start a new KeePass Interaction."))
-    #                 print(self.cl.red("[!] <ERROR> Start this with 'new' from the menu."))
-    #             print("[!] <ERROR> You need to supply the command for typing")
-    #     """
-    #     pass
+            self.prompt = self.cl.blue("[*] KeePass_{}".format(str(self.csh.counter.current()))) + "\n" + self.baseprompt
 
 
     def do_database_location(self, location):
         """
-        Specifies the keepass location
+        Specifies the keepass location > database_location c:\path.to.keepass.db
         """
         if location:
             if self.taskstarted == True:
+                print("[!] Database Location : {}".format(location))
                 self.database_location = location
             else:
                 if self.taskstarted == False:
                     print(self.cl.red("[!] <ERROR> You need to start a new KeePass Interaction."))
                     print(self.cl.red("[!] <ERROR> Start this with 'new' from the menu."))
                 print("[!] <ERROR> You need to supply the command for typing")
-   
+
+
+    def do_masterpassword(self, masterpassword):
+        """
+        Specifies the keepass masterpassword credential
+        """
+        if masterpassword:
+            if self.taskstarted == True:
+                self.masterpassword = masterpassword
+            else:
+                if self.taskstarted == False:
+                    print(self.cl.red("[!] <ERROR> You need to start a new KeePass Interaction."))
+                    print(self.cl.red("[!] <ERROR> Start this with 'new' from the menu."))
+                print("[!] <ERROR> You need to supply the command for typing")
+
 
     def do_complete(self, arg):
         """
@@ -177,25 +171,44 @@ class TaskConsole(BaseCMD):
 
         # Call the static method in the task object
         if self.taskstarted:
-            KeePass.create_autoIT_block(self.csh, 
+            # check to see if required stuff is here
+            if (self.database_location and self.masterpassword):
+                KeePass.create_autoIT_block(self.csh,
                                     # add in other arguments
                                     # for object constructor
-                                    # ---------------------> 
+                                    # --------------------->
                                     database_location=self.database_location,
-                                    username=self.username,
-                                    password=self.password
-                                    # ---------------------> 
+                                    masterpassword=self.masterpassword
+
+                                    # --------------------->
                                     )
+                # now reset the tracking values and prompt
+                self.complete_task()
+            else:
+                print("[!] You need to supply a database location and MasterPassword")
 
-        # now reset the tracking values and prompt
-        self.complete_task()
 
+
+
+
+    def do_show(self):
+        """
+        Shows the current configured credentials
+        """
+
+        current_setup = """
+        > Database Location : {}
+        > MasterPassword : {}
+
+        """.format(self.database_location, self.masterpassword)
+
+        print(textwrap.dedent(current_setup))
 
     # --------------------------------------------------->
     #   CMD Util Functions
     # --------------------------------------------------->
 
-    
+
 
 
 # #######################################################################
@@ -210,7 +223,7 @@ class KeePass:
         Initial object setup
         """
         self.__dict__.update(kwargs)
-        
+
         self.csh = csh
 
         # Check if this task requires an AutoIT Specifc UDF
@@ -227,7 +240,7 @@ class KeePass:
         if csh.interactive == True:
             # create the task based sub console
             self.TaskConsole = TaskConsole(csh, cl)
-            self.TaskConsole.cmdloop()            
+            self.TaskConsole.cmdloop()
         # else:
         #     #self.document_setup()
         #     print("Parse the JSON file")
@@ -244,7 +257,7 @@ class KeePass:
     # --------------------------------------------------->
 
     """
-    These are all the elements that get passed into the 
+    These are all the elements that get passed into the
     @static method as keyword arguments
     Essentially, this is everything that needs to be passed
     to create the KeePass object
@@ -271,11 +284,11 @@ class KeePass:
                                 str(csh.counter.current()),
                                 # add in other arguments
                                 # for object constructor
-                                # ---------------------> 
+                                # --------------------->
                                 kwargs["database_location"],
-                                kwargs["username"],
-                                kwargs["password"]
-                                # ---------------------> 
+                                kwargs["masterpassword"]
+
+                                # --------------------->
                                 ).create()
                             )
 
@@ -293,13 +306,12 @@ class KeePassAutoITBlock(object):
     String returns are pushed through (textwarp.dedent) to strip off indent tabs
     """
 
-    def __init__(self, counter, database_location, username, password):
+    def __init__(self, counter, database_location, masterpassword):
 
         self.counter = counter
         self.indent_space = '    '
         self.database_location = database_location
-        self.username = username
-        self.password = password
+        self.masterpassword = masterpassword
 
 
 
@@ -312,7 +324,7 @@ class KeePassAutoITBlock(object):
 
         function_declaration = """
         ; < --------------------------------- >
-        ;         KeePass Interaction        
+        ;         KeePass Interaction
         ; < --------------------------------- >
 
         KeePass_{}()
@@ -328,7 +340,7 @@ class KeePassAutoITBlock(object):
         """
 
         """
-        # Note a weird bug that the enter needs to be 
+        # Note a weird bug that the enter needs to be
         # passed as format string argument as escaping
         # is ignored on a multiline for some reason
         # if it gets sent as an individual line as in text_typing_block()
@@ -350,42 +362,48 @@ class KeePassAutoITBlock(object):
             ; Wait 10 seconds for the Run dialogue window to appear.
             WinWaitActive("Run", "", 10)
             ; note this needs to be escaped
-            ; <PROGRAM EXECUTION>
-            Send('cmd\{ENTER\}') 
-            ; Keep Window Infocus
-            WinWaitActive('#', "", 10)
-            SendKeepActive('#')
+            ; Sends path to Keepdatabase on local box
+            Send('{}{}')
+            ; check to see if we are already in an RDP session
+            $active_window = _WinAPI_GetClassName(WinGetHandle("[ACTIVE]"))
+            ConsoleWrite($active_window & @CRLF)
+            $inRDP = StringInStr($active_window, "TscShellContainerClass")
+            ; if the result is greater than 1 we are inside an RDP session
+            if $inRDP < 1 Then
+                WinWaitActive("[CLASS:ConsoleWindowClass]", "", 10)
+                SendKeepActive("[CLASS:ConsoleWindowClass]")
+            EndIf
+            ; Keep Window Infocus - longer wait delay to let program catchup
+            WinWaitActive('Open Database', "", 40)
+            SendKeepActive('Open Database')
 
-        """.format(str(self.counter))
+        """.format(str(self.counter),
+		                self.database_location,
+                        "{ENTER}",
+		                self.masterpassword
+		                )
 
-        return textwrap.dedent(_open_keepass)   
+        return textwrap.dedent(_open_keepass)
 
 
     def text_typing_block(self):
         """
         Takes the Typing Text Input
         """
+	    # open the database using the masterpassword
+        typing_text = 'Send({})\n'.format(self.masterpassword)
 
-        typing_text = 'Send("")'
-        # now loop round the input_text
-        # represents how someone would use the enter key when typing
-
-
-        for command in self.commands:
-            # these are individual send commands so don't need to be wrapped in a block
-            typing_text += 'Send("' + command + '{ENTER}")'
-            command_delay = str(random.randint(2000, 20000))
-            typing_text += 'sleep(" + command_delay + ")'
-
-        # add in exit
-        typing_text += 'Send("exit{ENTER}")'
-        typing_text += "; Reset Focus"
+        # add in exit - this is achieved using CTRL + q
+        typing_text += 'Sleep(15677)\n'
+        typing_text += "SendKeepActive('KeePass')\n"
+        typing_text += 'Send("^q")\n'
+        typing_text += "; Reset Focus\n"
         typing_text += 'SendKeepActive("")'
 
         return textwrap.indent(typing_text, self.indent_space)
 
 
-    def close_KeePass(self):
+    def close_keepass(self):
 
         """
         Closes the KeePass appliation function declaration
@@ -401,17 +419,16 @@ class KeePassAutoITBlock(object):
         return textwrap.dedent(end_func)
 
     def create(self):
-        """ 
+        """
         Grabs all the output from the respective functions and builds the AutoIT output
         """
 
         # Add in the constructor calls
 
         autoIT_script = (self.func_dec() +
-                        '' +
+                        self.open_keepass() +
                         self.text_typing_block() +
-                        ''
+                        self.close_keepass()
                         )
 
         return autoIT_script
-
