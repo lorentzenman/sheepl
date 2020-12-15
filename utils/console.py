@@ -250,22 +250,10 @@ class SheeplConsole(MainConsole):
         """
 
         print(self.cl.yellow("[%] Creating Sheepl called '{}'").format(name))
-                # check the input for spacing
+        # check the input for spacing
         print("[?] How long would you like {} to take to complete tasks?".format(self.cl.green_ul(name)))
-
-        # might be a better way now __!
-        total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
-        # if not total_time.endswith("m") or not total_time.endswith("h"):
-        #     print(cl.red("[!] You need to supply correct format"))
-        #     print(cl.yellow("[?] needs to end in 'm' for minutes or 'h' for hours"))
-        #     # bit dirty calling the input again but my while loops sucked - will fix
-        #     total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
-        if len(total_time) == 0:
-            total_time = "10m"
-            print("[!] Setting default total time to 10 minutes")
-
-        else:
-            print("[!] Setting total time to {}".format(self.cl.green_ul(total_time)))
+        # NEW: function to deal with time issue bug : requires 'm', 'h' or 'd'
+        total_time = self.set_time()
 
         # Typing Speed
         print("[?] How fast can {} type? <default is 40ms between key>".format(self.cl.green_ul(name)))
@@ -285,6 +273,30 @@ class SheeplConsole(MainConsole):
         self.birth = True
         self.csh.birth = self.birth
 
+
+    def set_time(self):
+        """
+        Creates the logic to deal with the time issue
+        """
+        # might be a better way now __!
+        print("[!] Time values are minutes {}".format(self.cl.green_ul("(m), hours (h) or days (d)")))
+
+        # loop round until either enter
+        while 1:
+            total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
+            # catch the enter to accept the default
+            if len(total_time) == 0:
+                total_time = "10m"
+                print("[!] Setting default total time to 10 minutes")
+                return total_time
+            else:
+                # check to see if the input ends with the options in the time_value list
+                # endswith expects a str so list comprehension is the winner here
+                if total_time.endswith("m") or total_time.endswith("h") or total_time.endswith("d"):
+                    print("[!] Setting total time to {}".format(self.cl.green_ul(total_time)))
+                    return total_time
+                else:
+                    print(self.cl.red("[!] Error : Time values end with minutes (m), hours (h) or days (d)"))
 
 
     def ask_yes_no_question(self, question):
