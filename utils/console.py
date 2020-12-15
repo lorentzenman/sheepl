@@ -12,7 +12,7 @@ import os
 import cmd
 import sys
 import glob
-import textwrap 
+import textwrap
 import importlib
 from pathlib import Path
 from collections import namedtuple
@@ -28,7 +28,7 @@ class MainConsole(cmd.Cmd):
         cmd.Cmd.__init__(self)
         self.context = context
         # self.task_list = self.locate_available_tasks()
-        # by creating a reference to this here, it 
+        # by creating a reference to this here, it
         # tiers down through inheritence to the others
         self.interactive = True
 
@@ -49,7 +49,7 @@ class SheeplConsole(MainConsole):
 
     def __init__(self, context, cl, tasks):
         MainConsole.__init__(self, context)
-        
+
         self.cl = cl
         self.tasks = tasks
         self.loop = "True"
@@ -66,10 +66,10 @@ class SheeplConsole(MainConsole):
         [!] type 'help' or '?' for command list
         [>] Create a new Sheepl 'create <name>'
         """
-       
+
         print(textwrap.dedent(self.introduction))
 
-       
+
 
     #######################################################################
     #   Console Functions
@@ -104,46 +104,11 @@ class SheeplConsole(MainConsole):
                 else:
                     print("[*] Leaving file : {} ".format(file_name))
                     return None
-                
+
 
             else:
                 self.create_sheepl(name)
-                # print(self.cl.yellow("OK, Let's create a Sheepl called '{}'").format(name))
-                # # check the input for spacing
-                # print("[?] How long would you like {} to take to complete tasks?".format(self.cl.green_ul(name)))
 
-                # # might be a better way now __!
-                # total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
-                # # if not total_time.endswith("m") or not total_time.endswith("h"):
-                # #     print(cl.red("[!] You need to supply correct format"))
-                # #     print(cl.yellow("[?] needs to end in 'm' for minutes or 'h' for hours"))
-                # #     # bit dirty calling the input again but my while loops sucked - will fix
-                # #     total_time = input("#> Enter the time (e.g. 45m or 6h) : ")
-                # if len(total_time) == 0:
-                #     total_time = "10m"
-                #     print("[!] Setting default total time to 10 minutes")
-
-                # else:
-                #     print("[!] Setting total time to {}".format(self.cl.green_ul(total_time)))
-
-                # # Typing Speed
-                # print("[?] How fast can {} type? <default is 40ms between key>".format(self.cl.green_ul(name)))
-                # typing_speed = input("#> Enter the typing speed <40> : ")
-                # if len(typing_speed) == 0:
-                #     typing_speed = 40
-                # print(self.cl.yellow("Typing speed is {} milliseconds".format(typing_speed)))                
-
-                # # Prompt Setup
-                # self.prompt = self.cl.yellow('{} >: '.format(name.lower()))
-
-                # # Create the Sheepl Object - the 'self' has a 'csh' object
-                # # we are in interactive mode, so let's set that
-                # self.csh = Sheepl(name, total_time, typing_speed, self.loop, self.cl, self.interactive)
-
-                # # mark as born in both this console and Sheepl object
-                # self.birth = True
-                # self.csh.birth = self.birth
-                    
         else:
             print(self.cl.red("[!] <ERROR> You need to specify a name e.g. 'create <name>'"))
 
@@ -159,8 +124,8 @@ class SheeplConsole(MainConsole):
                 # BUG >> you can use task notexist
                 # prob best to refactor call so that you don't need to loop over everytime
                 # set to available_tasks = self.tasks.locate_available_tasks().items()
-                print(self.cl.yellow("[>] You have selected : " + task))   
-            
+                print(self.cl.yellow("[>] You have selected : " + task))
+
                 # for module_import_path, module in (self.csh.task_list.items()):
                 #     if task == module:
                 #         task_module = importlib.import_module(module_import_path)
@@ -173,9 +138,9 @@ class SheeplConsole(MainConsole):
                 #         # task_instance = task_class_name(self.interactive, self.csh.counter.increment(), self.csh, self.cl)
                 #         # task_class_name(self.csh, self.interactive, self.csh.counter.current(), self.cl)
                 #         task_class_name(self.csh, self.cl)
-        
+
                     # module_task = (self.tasks.create_task(module_import_path, module, self.interactive, self.id)(self.interactive, self.id))
-             
+
                 # requests the Sheepl Object Generates a task and returns it
                 self.csh.generate_task(task)
 
@@ -203,17 +168,17 @@ class SheeplConsole(MainConsole):
         else:
             print(self.cl.red("[!] Please create a Sheepl to see available tasks 'create <name>'"))
 
-    
+
     def do_update(self, arg):
         """
         Updates the available task list
-        """       
+        """
         self.csh.update_available_tasks()
- 
+
 
     def do_finished(self, arg):
         """
-        Marks the current Sheepl as completed and calls 
+        Marks the current Sheepl as completed and calls
         the file write functon on the Sheepl Class.
         """
         if self.birth:
@@ -252,7 +217,7 @@ class SheeplConsole(MainConsole):
 
         else:
             print(self.cl.red("[!] You need to create a Sheepl to assign tasks to first of all"))
-        # need to call an operating system check to command to issue   
+        # need to call an operating system check to command to issue
 
 
     def do_quit(self, arg):
@@ -282,7 +247,7 @@ class SheeplConsole(MainConsole):
     def create_sheepl(self, name):
         """
         Questions to setup the initial Sheepl
-        """ 
+        """
 
         print(self.cl.yellow("[%] Creating Sheepl called '{}'").format(name))
                 # check the input for spacing
@@ -307,7 +272,7 @@ class SheeplConsole(MainConsole):
         typing_speed = input("#> Enter the typing speed <40> : ")
         if len(typing_speed) == 0:
             typing_speed = 40
-        print(self.cl.yellow("Typing speed is {} milliseconds".format(typing_speed)))                
+        print(self.cl.yellow("Typing speed is {} milliseconds".format(typing_speed)))
 
         # Prompt Setup
         self.prompt = self.cl.yellow('{} >: '.format(name.lower()))
@@ -331,7 +296,7 @@ class SheeplConsole(MainConsole):
             input_answer = input(question)
             if input_answer.lower() == "yes" or input_answer.lower() == "no":
                 break
-        
+
         if input_answer.lower() == "yes":
             return True
         else:

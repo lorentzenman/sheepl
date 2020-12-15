@@ -3,11 +3,11 @@
 
  Notes:
     The textwrap import is used to keep the AutoIT functions indented in code
-    as this messes with the python code (back off OCD) when it's manually 
+    as this messes with the python code (back off OCD) when it's manually
     appearing to hang outside of the class declarations and also stops code collapse in IDEs.
     So when creating code specific to the AutoIT functions just use tabs to indent insitu
     and the textwarp library will strip all leading tabs from the beginning of the AutoIT block.
-    Also uses textwrap.indent() to add indentation to commands or statements that should be 
+    Also uses textwrap.indent() to add indentation to commands or statements that should be
     inline from the initial function declaration
 
 """
@@ -36,7 +36,7 @@ class Sheepl(object):
     # DEBUG >> check to see if this can be moved into INIT
     #tasks = {}
     #headers = .action_headers()
-    
+
 
     def __init__(self, name, total_time, type_speed, loop, cl, interactive):
 
@@ -48,10 +48,10 @@ class Sheepl(object):
         # needs to be a string for JSON
         self.icon = "True"
         self.birth = False
-        
+
         # First create task Object
         self.available_tasks = Tasks()
-        
+
         # Calls the Task object to return all the available lists
         #self.task_list = dict(self.available_tasks.locate_available_tasks().items())
         self.task_list = self.update_available_tasks()
@@ -60,16 +60,18 @@ class Sheepl(object):
         self.tasks = {}
 
         # boolean to track subtask status and calling parent class
-       
+
         self.creating_subtasks = False
         self.parent_task = ''
         # empty subtask dictionary to hold assigned tasks
         self.subtasks = {}
-        
+
+        # empty list to hold window kill list
+        self.window_kill_list = []
 
         # set profile file path to an empty string
         self.profile_path = ''
-        
+
         # Start counter instance that maps to tasks
         self.counter = Counter()
 
@@ -78,10 +80,10 @@ class Sheepl(object):
         self.file_name = name.replace(' ', '_')
         self.file_name = name.lower() + '.au3'
         self.file_name = self.output_base + self.file_name
-    
+
         print("[>] Creating the file : {}".format(self.cl.red(self.file_name)))
         self.typing_speed = self._typing_speed(type_speed)
-    
+
         # Whether the task list loops or runs once
         print("[>] Looping set to : {}".format(self.cl.red(str(self.loop))))
 
@@ -180,7 +182,7 @@ class Sheepl(object):
                 # task_instance = task_class_name(self.interactive, self.csh.counter.increment(), self.csh, self.cl)
                 # task_class_name(self.csh, self.interactive, self.csh.counter.current(), self.cl)
                 return task_class_name(self, self.cl)
-        
+
 
     def add_task(self, task, output):
         """
@@ -247,6 +249,56 @@ class Sheepl(object):
         return textwrap.dedent(task_list_output), textwrap.dedent(sleep_time_output)
 
 
+    def _window_watcher(self):
+        """
+        For each task in the tasklist, functions that spawn a window that could
+        be left behind, are added to this loop.
+        Master function is a watcher that tracks all Window titles in array
+        windows list is an array
+        """
+        # sort out the array for the list
+        # print("Global $winKillList[" + str(len(windows_to_watch)) + "] = " + str(windows_to_watch))
+        window_list = "Global $winKillList[" + str(len(self.window_kill_list)) + "] = " + str(self.window_kill_list) + "\n"
+
+        window_func_declaration = """
+        ; < ------------------------------------ >
+        ;        Window watcher Function
+        ; < ------------------------------------ >
+
+        Func Window_Watcher()
+
+        """
+
+        windows_to_watch = """
+        ; Retrieve a list of window handles.
+        Local $aList = WinList()
+        ; Loop through the array displaying only visable windows with a title.
+        For $i = 1 To $aList[0][0]
+            If $aList[$i][0] <> "" And BitAND(WinGetState($aList[$i][1]), 2) Then
+        	    $winTitle = $aList[$i][0]
+        	    $winCheck = _ArraySearch($winKillList, $winTitle)
+        	    If $winCheck = 0 Then
+        		    ConsoleWrite("[!] Found  -> " & $winTitle & @CRLF)
+        		    WinKill($winTitle)
+    		    EndIf
+    	    EndIf
+        Next
+        """
+        window_func_end = """
+        EndFunc
+
+        ; < ------------------------------------ >
+        ;        End Window watcher Function
+        ; < ------------------------------------ >
+        """
+
+        print("[>] Global Kill list created")
+        print("[>] {}".format(window_list))
+        # now build out the string correctly
+        global_win_list =  textwrap.dedent(window_list) + textwrap.dedent(window_func_declaration) + textwrap.dedent(windows_to_watch) + textwrap.dedent(window_func_end)
+        return global_win_list
+
+
     def autoIT_UDF_headers(self, autoIT_include_statement):
         """
         Add in headers based on dictionary object
@@ -302,6 +354,10 @@ class Sheepl(object):
             ; shuffle this array so it's unique everytime
             _ArrayShuffle($aRandSleepTimes)
 
+            ; calling window cleanup
+            ConsoleWrite("[*] Calling Window Cleanup" & @CRLF)
+            Window_Watcher()
+
             ConsoleWrite("[!] Going round the loop" & @CRLF)
             For $i In $aRandTasks
                 ; start with a sleep Value
@@ -318,10 +374,10 @@ class Sheepl(object):
                 ; the magic call
                 Call($i)
                 ;Sleep($vSleepTime)
-                
+
             Next
         WEnd
-        
+
         """
 
         autoit_non_looping = """
@@ -354,7 +410,7 @@ class Sheepl(object):
         else:
             return autoit_non_looping
 
-        
+
     # --------------------------------------------------->
     #   Start File Write Setup
     # --------------------------------------------------->
@@ -372,8 +428,8 @@ class Sheepl(object):
         sleep_time_list = self.parse_time_values(self.total_time)
         print("SLEEP TIMES ARE {}".format(sleep_time_list))
 
-        # creates the file write 
-   
+        # creates the file write
+
 
         with open(file_name, 'w') as of:
             """
@@ -401,7 +457,7 @@ class Sheepl(object):
 
             # Gets the length of the total task keys() and the values of the tasks (ie the output)
             # Grabs the total length of sleep
-            
+
             task_list_output, sleep_time_output = self.autoIT_start(
                                                     len(self.tasks.keys()),
                                                     self.tasks.keys(),
@@ -411,10 +467,13 @@ class Sheepl(object):
             of.write(task_list_output)
             of.write(sleep_time_output)
 
+            # write the Window Kill
+            of.write(textwrap.dedent(self._window_watcher()))
+
             # setup the task looping - string returned by the function
             of.write(textwrap.dedent(self.task_loop()))
 
-            # create the file    
+            # create the file
             # now loop round for output
             for task_output in self.tasks.values():
                 of.write(task_output)

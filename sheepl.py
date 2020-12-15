@@ -39,7 +39,6 @@ def banner(version):
 
 version : %s
 author  : @lorentzenman
-team    : SpiderLabs
 
 ------------------------------------------------
     """ %version
@@ -79,9 +78,9 @@ def parse_arguments():
     main_parser.add_argument("--loop", action="store_false", help="Loops the program based around the total_time, will create actions and then repeat", default=True)
     main_parser.add_argument("--no_colour", action="store_false", help="Colours the output in the terminal <boolean> : defaults to True", default=True)
     main_parser.add_argument("--no_tray", action="store_true", help="Removes compiled script tray icon", default=False)
-    
+
     # Profiles Options
-    profile_group = parser.add_argument_group('Profiles', 'Creates Sheepl files from JSON format files')    
+    profile_group = parser.add_argument_group('Profiles', 'Creates Sheepl files from JSON format files')
     profile_group.add_argument("--profile", type=argparse.FileType('r', encoding='UTF-8'), help="Specifies a profile and will import commands based on the JSON file")
 
     # Template Engine
@@ -107,7 +106,7 @@ def parse_arguments():
 
 
 def main():
-    banner("2.0")
+    banner("2.1")
     # hr = "------------------------------------"
     # counter below needs to be added as part of the Sheepl Object
     # this should get automatically incremented either based on the
@@ -134,15 +133,15 @@ def main():
         context = ConsoleContext()
         con = SheeplConsole(context, cl, tasks)
         con.cmdloop()
-        
+
 
     # Check if creating template stub file and category.
     # this should be replaced with pathlib functions
     if args.template and not args.category:
         print(cl.red("[!] You must specify a category eg 'network'"))
         print("[>] If this path does not exist, then it will be created")
-      
-    elif args.template:      
+
+    elif args.template:
         if not os.path.isdir('tasks/' + args.category.lower()):
             print(cl.yellow("[!] Couldn't find this category : " + args.category.lower()))
             print(cl.green("[!] Creating {} category path now.".format(args.category.lower())))
@@ -153,7 +152,7 @@ def main():
             if not os.path.isfile(args.template + '.py'):
                 print("[!] Creating task template: {}".format(cl.green(args.template)))
                 CreateTemplate(args.template)
-        
+
             if os.path.isfile(args.template + '.py'):
                 print(cl.red("[!] Task template already exists : " + args.template))
                 # spam loop until yes or no is answered
@@ -167,7 +166,7 @@ def main():
                 else:
                     print(cl.green("[!] Leaving orginal template intact"))
 
-    
+
     # create from JSON profile
     if args.profile:
         print("[!] Create a sheepl from the profile file : {}".format(cl.green(args.profile.name)))

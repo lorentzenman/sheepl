@@ -45,7 +45,7 @@ class BaseCMD(cmd.Cmd):
 
     def __init__(self, csh, cl):
         cmd.Cmd.__init__(self)
-        
+
         self.cl = cl
         self.csh = csh
         self.completed = True
@@ -64,14 +64,23 @@ class BaseCMD(cmd.Cmd):
         if self.completed == False:
             print(self.cl.red("[!] <ERROR> Still creating task : ") + self.taskname)
             print("[!] Run 'discard' to reset\n")
-            
-        else:   
+
+        else:
             print(self.cl.red('[>] Returning to the main menu'))
             return -1
 
 
     def emptyline(self):
         pass
+
+
+    def do_killwindow(self, window_title):
+        """
+        Adds the Window title to the 'Kill Windows list'
+        """
+        if window_title:
+            print("[!] Adding {} to the Kill Window Title list".format(window_title))
+            self.csh.window_kill_list.append(window_title)
 
 
     def do_discard(self, arg):
@@ -127,7 +136,7 @@ class BaseCMD(cmd.Cmd):
         # fix for multiple completion commands
         if self.taskstarted:
             print(self.cl.green("[>] Completing this task interaction"))
-            # reset the prompt back 
+            # reset the prompt back
             self.prompt = self.baseprompt
             # Flick completed Switch
             self.completed      = True
@@ -149,7 +158,7 @@ class BaseCMD(cmd.Cmd):
                 input_answer = input(question)
                 if input_answer.lower() == "yes" or input_answer.lower() == "no":
                     break
-            
+
             if input_answer.lower() == "yes":
                 return True
             else:
@@ -175,15 +184,15 @@ class BaseCMD(cmd.Cmd):
 
     def do_subtask(self, st):
             """
-            Checks to see if subtasks are supported in 
+            Checks to see if subtasks are supported in
             the module ie RDP etc
             """
             if self.subtask_supported == False:
                 print(self.cl.red("[!] SubTasks are not supported in the this module"))
-            
+
             else:
-                
-                # List the available Tasks to assign to a Sheepl   
+
+                # List the available Tasks to assign to a Sheepl
                 print(self.cl.green("\n[!] Sheepl can create the following sub tasks inside the RDP session: \n"))
                 #self.tasks.display_available_tasks(self.locate_available_tasks().values())
                 for task in self.csh.task_list.values():
@@ -191,7 +200,7 @@ class BaseCMD(cmd.Cmd):
                 # OCD line break
                 print()
                 print(self.cl.green("\n[!] Assign with 'subtask' <TaskName> \n"))
-                
+
 
             for task in self.csh.task_list.values():
                 if st == task:
@@ -210,7 +219,7 @@ class SubTaskCMD(BaseCMD):
         super(SubTaskCMD, self).__init__(csh, cl)
         self.subtask_prompt()
         self.subtask_counter = Counter()
-        
+
 
     def subtask_prompt(self):
         """

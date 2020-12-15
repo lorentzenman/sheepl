@@ -18,7 +18,7 @@
 
  General Notes:
     The textwrap import is used to keep the AutoIT functions indented in code
-    as this messes with the python code (back off OCD) when it's manually 
+    as this messes with the python code (back off OCD) when it's manually
     appearing to hang outside of the class declarations and also stops code collapse in IDEs.
     So when creating code specific to the AutoIT functions just use tabs to indent insitu
     and the textwarp library will strip all leading tabs from the beginning of the AutoIT block.
@@ -34,13 +34,13 @@
         Once all the arguments are complete
         build the do_complete function out by passing the arguments
         as keywords to the staticmethod of the task object
-        <TaskName>.create_autoIT_block(self.csh, 
+        <TaskName>.create_autoIT_block(self.csh,
                                         # add in other arguments
                                         # for object constructor
-                                        # ---------------------> 
+                                        # --------------------->
                                         parm1=self.parm1_value,
                                         parm2=self.parm3_value
-                                        # ---------------------> 
+                                        # --------------------->
                                         )
     Non-Interactive Profile
         This takes an input from the sheepl object
@@ -84,18 +84,18 @@ class TaskConsole(BaseCMD):
         # Override the defined task name
         self.taskname = 'CommandShell'
 
-        # Overrides Base Class Prompt Setup 
-        
+        # Overrides Base Class Prompt Setup
+
         if csh.creating_subtasks == True:
             print("creating subtasks >>>>>>>>")
             self.baseprompt = cl.yellow('[>] Creating subtask\n{} > command >: '.format(csh.name.lower()))
         else:
             self.baseprompt = cl.yellow('{} > command >: '.format(csh.name.lower()))
-        
-        self.prompt = self.baseprompt
-        
 
-        # creating my own 
+        self.prompt = self.baseprompt
+
+
+        # creating my own
         self.introduction = """
         ----------------------------------
         [!] CommandLine Interaction.
@@ -109,13 +109,13 @@ class TaskConsole(BaseCMD):
         # ----------------------------------- >
         #      Task Specific Variables
         # ----------------------------------- >
-        
+
         # List to hold commands for current interaction
         self.commands = []
 
 
     def do_new(self, arg):
-        """ 
+        """
         This command creates a new CMD shell interaction based
         """
         # Init tracking booleans
@@ -133,7 +133,7 @@ class TaskConsole(BaseCMD):
         <> Example : ipconfig /all
         """
         if command:
-            if self.taskstarted == True:   
+            if self.taskstarted == True:
                 print(" : " + command)
                 self.commands.append(command)
             else:
@@ -152,7 +152,7 @@ class TaskConsole(BaseCMD):
             if self.taskstarted == True:
                 try:
                     with open(input_file) as command_file:
-                        for command in command_file.readlines():  
+                        for command in command_file.readlines():
                             self.commands.append(command.rstrip('\n'))
 
                 except:
@@ -165,7 +165,7 @@ class TaskConsole(BaseCMD):
 
 
     def do_assigned(self, arg):
-        """ 
+        """
         Get the current list of assigned CMD commands
         """
         print(self.cl.green("[?] Currently Assigned Commands "))
@@ -183,12 +183,12 @@ class TaskConsole(BaseCMD):
         # Call the static method in the task object
         if self.taskstarted:
             if self.commands:
-                CommandShell.create_autoIT_block(self.csh, 
+                CommandShell.create_autoIT_block(self.csh,
                                         # add in other arguments
                                         # for object constructor
-                                        # ---------------------> 
+                                        # --------------------->
                                         cmd=self.commands
-                                        # ---------------------> 
+                                        # --------------------->
                                         )
             else:
                 print("{} There are currently no commands assigned".format(self.cl.red("[!]")))
@@ -199,7 +199,7 @@ class TaskConsole(BaseCMD):
         self.complete_task()
 
         # reset commands list when new interaction
-        self.commands = []   
+        self.commands = []
 
 
 #######################################################################
@@ -214,27 +214,27 @@ class CommandShell:
         Initial object setup
         """
         self.__dict__.update(kwargs)
-        
+
         self.csh = csh
         self.subtask = False
         self.commands = []
-        
+
         if csh.interactive == True:
             # create the task based sub console
             self.TaskConsole = TaskConsole(csh, cl)
-            self.TaskConsole.cmdloop()            
-       
+            self.TaskConsole.cmdloop()
+
 
     # --------------------------------------------------->
     #   End CommandShell Constructor
     # --------------------------------------------------->
-    
+
     # --------------------------------------------------->
     #   CommandShell Static Method
     # --------------------------------------------------->
 
     """
-    These are all the elements that get passed into the 
+    These are all the elements that get passed into the
     @static method as keyword arguments
     Essentially, this is everything that needs to be passed
     to create the InternetExplorer object
@@ -250,7 +250,7 @@ class CommandShell:
             Kwargs returns a dictionary
             do these values can be referenced
             by the keys directly
-        
+
         This now creates an instance of the object with the correct
         counter tracker, and then appends as a task
         Note : add in additional constructor arguments as highlighted
@@ -264,12 +264,12 @@ class CommandShell:
                                 str(csh.counter.current()),
                                 # add in other arguments
                                 # for object constructor
-                                # ---------------------> 
+                                # --------------------->
                                 kwargs["cmd"]
-                                # ---------------------> 
+                                # --------------------->
                                 ).create()
                             )
-                            
+
     # --------------------------------------------------->
     #   End CommandShell Static Method
     # --------------------------------------------------->
@@ -306,11 +306,11 @@ class CommandShellAutoITBlock(object):
         ; < ----------------------------------- >
         ; <      CommandShell Interaction
         ; < ----------------------------------- >
-        
+
         """
         # this is an important check as you cannot have nested functions in autoit
         # so you need to check whether to include the command call or not
-        # if you are creating subtasks then this call gets pulled from the 
+        # if you are creating subtasks then this call gets pulled from the
         # 'key' of the subtasks dictionary so cannot be included here
         # which is the reason for this check
         # in other words, all functions need to be declared without nesting
@@ -320,7 +320,7 @@ class CommandShellAutoITBlock(object):
         if self.csh.creating_subtasks == False:
             function_declaration += "CommandShell_{}()".format(str(self.counter))
 
-        
+
         return textwrap.dedent(function_declaration)
 
 
@@ -328,9 +328,9 @@ class CommandShellAutoITBlock(object):
         """
         Creates the AutoIT Function Declaration Entry
         """
-        
+
         """
-        # Note a weird bug that the enter needs to be 
+        # Note a weird bug that the enter needs to be
         # passed as format string argument as escaping
         # is ignored on a multiline for some reason
         # if it gets sent as an individual line as in text_typing_block()
@@ -373,16 +373,16 @@ class CommandShellAutoITBlock(object):
 
         # Grabas the command list and goes through it
         # This uses the textwrap.indent to add in the indentation
-        
 
-        typing_text = '\n'        
+
+        typing_text = '\n'
 
         for command in self.commands:
             # these are individual send commands so don't need to be wrapped in a block
             typing_text += ('Send("' + command + '{ENTER}")\n')
             command_delay = str(random.randint(2000, 20000))
             typing_text += ("sleep(" + command_delay + ")\n")
-     
+
         # add in exit
         typing_text += "Send('exit{ENTER}')\n"
         typing_text += "; Reset Focus\n"
@@ -406,7 +406,7 @@ class CommandShellAutoITBlock(object):
 
 
     def create(self):
-        """ 
+        """
         Grabs all the output from the respective functions and builds the AutoIT output
         """
 
@@ -417,5 +417,3 @@ class CommandShellAutoITBlock(object):
                         )
 
         return autoIT_script
-
-
