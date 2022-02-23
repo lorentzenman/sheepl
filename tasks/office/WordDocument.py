@@ -67,8 +67,7 @@ class WordDocument(BaseCMD):
         2: Add content with 'input_file'
         3: Complete the document using 'complete'
         """
-        print(textwrap.dedent(self.introduction))
-        
+          
         self.indent_space = '    '
 
         # ----------------------------------- >
@@ -89,8 +88,13 @@ class WordDocument(BaseCMD):
             self.csh.autoIT_UDF_includes.append(self.autoIT_include_statement)
 
         # ----------------------------------- >
-        # Now call start
-        self.cmdloop()
+        # now call the loop if we are in interactive mode by checking 
+        # if we are parsing JSON
+        
+        if not self.csh.json_parsing:
+            # call the intro and then start the loop
+            print(textwrap.dedent(self.introduction))
+            self.cmdloop()
 
     ########################################################################
     # WordDocument Console Commands
@@ -218,12 +222,26 @@ class WordDocument(BaseCMD):
         return autoIT_script
 
 
-    def parse_json_profile(csh, **kwargs):
+    def parse_json_profile(self, **kwargs):
         """
-        Takes kwargs in and build out task variables
+        Takes kwargs in and build out task variables when using JSON profiles
+        this function sets the various object attributes in the same way
+        that the interactive mode does
         """
-        for k, v in kwargs.items():
-            print(k, v)
+    
+        print("[%] Setting attributes from JSON Profile")
+        # This snippet takes the keys ignoring the first key which is task and then shows
+        # what should be set in the kwargs parsing. 
+        print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
+
+        self.input_file = kwargs["input_file"]
+        self.save_name = kwargs["save_name"]
+
+        print(f"[*] Setting the input file attribute : {self.input_file}")
+        print(f"[*] Setting the input file attribute : {self.save_name}")
+
+        # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
+        self.create_autoIT_block()
 
     # --------------------------------------------------->
     # Create Open Block

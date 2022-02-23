@@ -230,7 +230,7 @@ class CommandShell(BaseCMD):
         # what should be set in the kwargs parsing. 
         print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
         self.commands = kwargs["cmd"]
-        print(f"[*] Setting the commands attribure to {self.commands}")
+        print(f"[*] Setting the commands attribute : {self.commands}")
 
         # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
         self.create_autoIT_block()

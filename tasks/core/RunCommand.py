@@ -203,7 +203,7 @@ class RunCommand(BaseCMD):
         if len(self.command) > 1:
             print(self.cl.red("[!] Multiple run entries are detected - for now I will take the first one"))
             self.command = kwargs["cmd"][0]
-        print(f"[*] Setting the command attribure to {self.command}")
+        print(f"[*] Setting the command attribute : {self.command}")
 
         # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
         self.create_autoIT_block()

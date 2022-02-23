@@ -222,12 +222,12 @@ class PowerShell(BaseCMD):
         that the interactive mode does
         """
     
-        print("[%] Setting attribures from JSON Profile")
+        print("[%] Setting attributes from JSON Profile")
         # This snippet takes the keys ignoring the first key which is task and then shows
         # what should be set in the kwargs parsing. 
         print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
         self.commands = kwargs["cmd"]
-        print(f"[*] Setting the commands attribure to {self.commands}")
+        print(f"[*] Setting the commands attribute : {self.commands}")
 
         # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
         self.create_autoIT_block()   
