@@ -75,7 +75,6 @@ class RunCommand(BaseCMD):
         3: If it spawns errors, you can clean them out with 'killwindow <title>'
         4: Complete the interaction using 'complete'
         """
-        print(textwrap.dedent(self.introduction))
 
         self.indent_space = '    '
 
@@ -87,9 +86,13 @@ class RunCommand(BaseCMD):
         self.command = ''
                
         # ----------------------------------- >
-        # Now call start
-        self.cmdloop()
-
+        # now call the loop if we are in interactive mode by checking 
+        # if we are parsing JSON
+        
+        if not self.csh.json_parsing:
+            # call the intro and then start the loop
+            print(textwrap.dedent(self.introduction))
+            self.cmdloop()
 
     ########################################################################
     # RunCommand Console Commands
@@ -164,11 +167,7 @@ class RunCommand(BaseCMD):
         """
         Creates the AutoIT Script Block
         """
-
-        # check to see if JSON profile parsing
-        if self.csh.json_parsing:
-            print("[*] JSON Profile detected - calling 'parse_json_profile' function")
-        
+   
         current_counter = str(self.csh.counter.current())
         self.csh.add_task('RunCommand_' + current_counter, self.create_autoit_function())
 
@@ -187,17 +186,27 @@ class RunCommand(BaseCMD):
         return autoIT_script
 
 
-    def parse_json_profile(csh, **kwargs):
+    def parse_json_profile(self, **kwargs):
         """
         Takes kwargs in and build out task variables when using JSON profiles
         this function sets the various object attributes in the same way
         that the interactive mode does
         """
-        # set the JSON profile parsing
-        
-        for k, v in kwargs.items():
-            print(k, v)
+    
+        print("[%] Setting attribures from JSON Profile")
+        # This snippet takes the keys ignoring the first key which is task and then shows
+        # what should be set in the kwargs parsing. 
+        print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
+        self.command = kwargs["cmd"][0]
+        # if multiple commands are sent then the raise an error and show that the RunCommands only take the latest
+        # parse the list and grab the first one
+        if len(self.command) > 1:
+            print(self.cl.red("[!] Multiple run entries are detected - for now I will take the first one"))
+            self.command = kwargs["cmd"][0]
+        print(f"[*] Setting the command attribure to {self.command}")
 
+        # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
+        self.create_autoIT_block()
            
     # --------------------------------------------------->
     # Create Open Block
