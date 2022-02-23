@@ -198,10 +198,6 @@ class CommandShell(BaseCMD):
             commandname_{counter}, and task
         """
 
-        # check to see if JSON profile parsing
-        if self.csh.json_parsing == True:
-            print("[*] JSON Profile detected - calling 'parse_json_profile' function")
-
         current_counter = str(self.csh.counter.current())
         self.csh.add_task('CommandShell_' + current_counter, self.create_autoit_function())
 
@@ -235,6 +231,10 @@ class CommandShell(BaseCMD):
         print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
         self.commands = kwargs["cmd"]
         print(f"[*] Setting the commands attribure to {self.commands}")
+
+        # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
+        self.create_autoIT_block()
+
 
     # --------------------------------------------------->
     # Create Open Block

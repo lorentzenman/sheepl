@@ -25,7 +25,6 @@ class Profile(object):
         self.tasks = tasks
         # now parse the profile_file
         self.interactive = False
-
         self.verbose = True
 
         # emptys for module strings
@@ -46,6 +45,11 @@ class Profile(object):
                             self.profile["loop"], 
                             cl,
                             self.interactive)
+
+        # now trigger the self.csh.json_parsing and set to True
+        # this gets checked in each task AutoIT build section
+        self.csh.json_parsing = True
+
 
         # create a list for base_class_names
         self.base_class_names = []
@@ -200,7 +204,9 @@ class Profile(object):
             #print(task_class_name)
             for key, value in task.items():
                 if value == task_name:
-                    print(self.cl.green("[*] Creating Sheepl Task : {}".format(task_name)))
+                    print("------------------------------------------------------\n")
+                    current_task_name = task_name + "_" + str(self.csh.counter.current())
+                    print(self.cl.green(f"[*] Creating Sheepl Task : {current_task_name}"))
                     #print("The Task Name is : {}".format(task_name))
                 # check to see if subtasks are defined
                 if key == 'subtasks':
@@ -209,8 +215,7 @@ class Profile(object):
                 else:
                     task_arguments.update({ key : value })
                 
-            print("The Final Task Arguments \n" + str(task_arguments))
-            print("-------------------------------------\n")
+            
 
             """
             Now we use importlub to import the module path and 
@@ -225,9 +230,21 @@ class Profile(object):
                 if task_name == module:
                     task_module = importlib.import_module(path)
                     #print(task_module)
-                    sheepl_task = getattr(task_module, module)
+                    # Get the attributes needed to create a class
+                    SHEEPL_TASK = getattr(task_module, module)
+                    # The key change here is that sheepl_task creates an instance of the task class
+                    # as the parse_json_profile needs to upack the kwargs dict it will need to be
+                    # able to update attributes of the class, for example the self.commands list
+                    # sheepl_task resolves to self in the contect of the function, so once kwargs
+                    # have been unpacked, it can be used inside the function
+                    # ->  def parse_json_profile(self, **kwargs):
                     
-                    sheepl_task.create_autoIT_block(self.csh, **task_arguments)
+                    # first create an instance of the class
+                    # all tasks take two args, the current sheepl object and the colour object
+                    current_task = SHEEPL_TASK(self.csh, self.cl)
+
+                    #sheepl_task.create_autoIT_block(self.csh, **task_arguments)
+                    current_task.parse_json_profile(**task_arguments)
                     # increment the counter
                     self.csh.counter.increment()
 
@@ -237,6 +254,8 @@ class Profile(object):
         """
         After tasking has been parsed, this is the call to write the file
         """
+        print("\n------------------------------------------------------\n")
+
         print("[!] Writing the file {} :".format(self.cl.green(self.csh.file_name)))
         self.csh.write_file(self.csh.file_name)
         print("[!] Written the file {} :".format(self.cl.green(self.csh.file_name)))
