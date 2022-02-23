@@ -126,21 +126,6 @@ class SheeplConsole(MainConsole):
                 # set to available_tasks = self.tasks.locate_available_tasks().items()
                 print(self.cl.yellow("[>] You have selected : " + task))
 
-                # for module_import_path, module in (self.csh.task_list.items()):
-                #     if task == module:
-                #         task_module = importlib.import_module(module_import_path)
-                #         task_class_name = getattr(task_module, module)
-                #         #print(task_class_name)
-                #         """
-                #         Creates instance of the selected class
-                #         all classes need to confirm to a structure
-                #         """
-                #         # task_instance = task_class_name(self.interactive, self.csh.counter.increment(), self.csh, self.cl)
-                #         # task_class_name(self.csh, self.interactive, self.csh.counter.current(), self.cl)
-                #         task_class_name(self.csh, self.cl)
-
-                    # module_task = (self.tasks.create_task(module_import_path, module, self.interactive, self.id)(self.interactive, self.id))
-
                 # requests the Sheepl Object Generates a task and returns it
                 self.csh.generate_task(task)
 
@@ -156,10 +141,6 @@ class SheeplConsole(MainConsole):
         """
         List the available Tasks to assign to a Sheepl
         """
-        # print(self.cl.green("\n[!] Sheepl can create the following tasks: \n"))
-        # #self.tasks.display_available_tasks(self.locate_available_tasks().values())
-        # for task in self.tasks.locate_available_tasks().values():
-        #      print("[*] {}".format(task))
         # # OCD line break
         if self.birth:
             self.csh.list_tasks()

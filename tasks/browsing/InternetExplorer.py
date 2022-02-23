@@ -12,40 +12,6 @@
  : Takes a supplied text file for the Sheepl to type
  : the master script will already define the typing speed as part of the master declarations
 
- ##############################################
-        Add in Task Specific Notes Here
- ##############################################
-
- General Notes:
-    The textwrap import is used to keep the AutoIT functions indented in code
-    as this messes with the python code (back off OCD) when it's manually 
-    appearing to hang outside of the class declarations and also stops code collapse in IDEs.
-    So when creating code specific to the AutoIT functions just use tabs to indent insitu
-    and the textwarp library will strip all leading tabs from the beginning of the AutoIT block.
-    Also uses textwrap.indent() to add indentation to 'Send' commands in text_typing_block()
-
- Conventions:
-    Use 'AutoIT' in code comments and class names and 'autoIT' when using as part of variable names
-
- Modes:
-    Interactive Mode
-        This uses the task module assign task requirements
-        Add additional CMD functions using do_<argument>
-        Once all the arguments are complete
-        build the do_complete function out by passing the arguments
-        as keywords to the staticmethod of the task object
-        <TaskName>.create_autoIT_block(self.csh, 
-                                        # add in other arguments
-                                        # for object constructor
-                                        # ---------------------> 
-                                        parm1=self.parm1_value,
-                                        parm2=self.parm3_value
-                                        # ---------------------> 
-                                        )
-    Non-Interactive Profile
-        This takes an input from the sheepl object
-        and this creates a Profile() object. See profile.py
-
 """
 
 __author__ = "Matt Lorentzen @lorentzenman"
@@ -61,12 +27,7 @@ from utils.base.base_cmd_class import BaseCMD
 #from utils.typing import TypeWriter
 
 
-# #######################################################################
-#  Task CMD Class Module Loaded into Main Sheepl Console
-# #######################################################################
-
-
-class TaskConsole(BaseCMD):
+class InternetExplorer(BaseCMD):
 
     """
     Inherits from BaseCMD
@@ -80,14 +41,25 @@ class TaskConsole(BaseCMD):
     def __init__(self, csh, cl):
 
         # Calling super to inherit from the BaseCMD Class __init__
-        super(TaskConsole, self).__init__(csh, cl)
+        super(InternetExplorer, self).__init__(csh, cl)
 
         # Override the defined task name
         self.taskname = 'InternetExplorer'
 
-        # Overrides Base Class Prompt Setup 
-        self.baseprompt = cl.yellow('{} >: internetexplorer :> '.format(csh.name.lower()))
-        self.prompt = self.baseprompt
+        # current Sheepl Object
+        # which might need to be renamed to Sheepl
+        self.csh = csh
+        # current colour object
+        self.cl = cl
+
+        #  Overrides Base Class Prompt Setup
+        if csh.creating_subtasks == True:
+            print("[^] creating subtasks >>>>>>>>")
+            self.baseprompt = cl.yellow('[>] Creating subtask\n{} > command >: '.format(csh.name.lower()))
+        else:
+            self.baseprompt = cl.yellow('{} > runcommand >: '.format(csh.name.lower()))
+
+        self.prompt = self.basepromptt
 
         # creating my own 
         self.introduction = """
@@ -101,16 +73,29 @@ class TaskConsole(BaseCMD):
         """
         print(textwrap.dedent(self.introduction))
 
+        self.indent_space = '    '
+
         # ----------------------------------- >
         #      Task Specific Variables
         # ----------------------------------- >
 
         self.destination_url = ''
+        self.autoIT_include_statement = "#include <IE.au3>"
+
+        # Check to make sure it's not already there, and if not add
+        if not self.autoIT_include_statement in self.csh.autoIT_UDF_includes:
+            self.csh.autoIT_UDF_includes.append(self.autoIT_include_statement)
+
+        
+        # ----------------------------------- >
+        # Now call start
+        self.cmdloop()
 
 
-    # --------------------------------------------------->
-    #   Task CMD Functions
-    # --------------------------------------------------->
+    ########################################################################
+    # InternetExplorer Console Commands
+    ########################################################################
+
 
     def do_new(self, arg):
         """ 
@@ -127,27 +112,6 @@ class TaskConsole(BaseCMD):
             # OCD Line break
             print()
             self.prompt = self.cl.blue("[*] InternetExplorer_{}".format(str(self.csh.counter.current()))) + "\n" + self.baseprompt       
-
-
-    # def do_cmd(self, command):
-    #     """
-    #     First checks to see if a new InternetExplorer Block has been started
-    #     if so allows the command to be issued and then runs some checks
-    #     or prompts to start a new interaction using 'new'
-    #     Specify the command to run in the shell
-    #     """
-    #     # Uncomment
-    #     """
-    #     if command:
-    #         if self.taskstarted == True:   
-    #             self.commands.append(command)
-    #         else:
-    #             if self.taskstarted == False:
-    #                 print(self.cl.red("[!] <ERROR> You need to start a new InternetExplorer Interaction."))
-    #                 print(self.cl.red("[!] <ERROR> Start this with 'new' from the menu."))
-    #             print("[!] <ERROR> You need to supply the command for typing")
-    #     """
-    #     pass
 
 
     def do_url(self, destination):
@@ -173,127 +137,55 @@ class TaskConsole(BaseCMD):
 
         # Call the static method in the task object
         if self.taskstarted:
-            InternetExplorer.create_autoIT_block(self.csh, 
-                                    # add in other arguments
-                                    # for object constructor
-                                    # ---------------------> 
-                                    url=self.destination_url
-                                    # ---------------------> 
-                                    )
+            if self.destination_url:
+                self.create_autoIT_block()
 
-        # now reset the tracking values and prompt
-        self.complete_task()
+                # now reset the tracking values and prompt
+                self.complete_task()
+        else:
+            print("{} There is currently no URL assigned".format(self.cl.red("[!]")))
 
 
-    # --------------------------------------------------->
-    #   CMD Util Functions
-    # --------------------------------------------------->
+ 
+    ########################################################################
+    # InternetExplorer AutoIT Block Definition
+    ########################################################################
 
-
-
-# #######################################################################
-#  InternetExplorer Class Definition
-# #######################################################################
-
-
-class InternetExplorer:
-
-    def __init__(self, csh, cl, **kwargs):
-        """
-        Initial object setup
-        """
-        self.__dict__.update(kwargs)
-        
-        self.csh = csh
-        self.subtask = False
-
-        # Check if this task requires an AutoIT Specifc UDF
-        # this gets declared here and then pushed into the master
-        # if not then this can be deleted
-        # Sheepl AutoIT include header list as part of the 'csh' object
-
-        self.autoIT_include_statement = "#include <IE.au3>"
-
-        # Check to make sure it's not already there, and if not add
-        if not self.autoIT_include_statement in csh.autoIT_UDF_includes:
-            csh.autoIT_UDF_includes.append(self.autoIT_include_statement)
-
-        if csh.interactive == True:
-            # create the task based sub console
-            self.TaskConsole = TaskConsole(csh, cl)
-            self.TaskConsole.cmdloop()            
-   
-
-    # --------------------------------------------------->
-    #   End InternetExplorer Constructor
-    # --------------------------------------------------->
-
-    # --------------------------------------------------->
-    #   InternetExplorer Static Method
-    # --------------------------------------------------->
-
-    """
-    These are all the elements that get passed into the 
-    @static method as keyword arguments
-    Essentially, this is everything that needs to be passed
-    to create the InternetExplorer object
-
-    Parse the 'kwargs' dictionary for the arguments
-    """
-
-    @staticmethod
-    def create_autoIT_block(csh, **kwargs):
+    def create_autoIT_block(self):
         """
         Creates the AutoIT Script Block
-        Note :
-            Kwargs returns a dictionary
-            do these values can be referenced
-            by the keys directly
         """
-     
-        """
-        This now creates an instance of the object with the correct
-        counter tracker, and then appends as a task
-        Note : add in additional constructor arguments as highlighted
-               which get passed in from the 'kwargs' dictionary
+        current_counter = str(self.csh.counter.current())
+        self.csh.add_task('InternetExplorer_' + current_counter, self.create_autoit_function())
 
+
+    def create_autoit_function(self):
+        """ 
+        Grabs all the output from the respective functions and builds the AutoIT output
         """
 
-        csh.add_task('InternetExplorer_' + str(csh.counter.current()),
-                                InternetExplorerAutoITBlock(
-                                str(csh.counter.current()),
-                                # add in other arguments
-                                # for object constructor
-                                # ---------------------> 
-                                kwargs["url"]
-                                # ---------------------> 
-                                ).create()
-                            )
+        autoIT_script = (
+            self.func_dec() +
+            self.open_internetexplorer() +
+            self.close_internetExplorer()
+        )
+
+        return autoIT_script
+ 
+ 
+    def parse_json_profile(csh, **kwargs):
+        """
+        Takes kwargs in and build out task variables
+        """
+        for k, v in kwargs.items():
+            print(k, v) 
 
 
+    # --------------------------------------------------->
+    # Create Open Block
 
 
-# #######################################################################
-#  InternetExplorer AutoIT Block Definition
-# #######################################################################
-
-
-class InternetExplorerAutoITBlock(object):
-    """
-    Creates an AutoIT Code Block based on the current counter
-    then returns this to Task Console which pushes this upto the Sheepl Object
-    with a call to create.
-    String returns are pushed through (textwarp.dedent) to strip off indent tabs
-    """
-
-    def __init__(self, counter, destination_url):
-
-        self.counter = counter
-        self.indent_space = '    '
-        self.destination_url = destination_url
-
-
-    def func_dec(self):
+    def autoit_function_open(self):
         """
         Initial Entrypoint Definition for AutoIT function
         when using textwrap.dedent you need to add in the backslash
@@ -306,7 +198,7 @@ class InternetExplorerAutoITBlock(object):
         ; < ------------------------------------------ >
 
         InternetExplorer_{}()
-        """.format(str(self.counter))
+        """.format(str(self.csh.counter.current()))
 
         return textwrap.dedent(function_declaration)
 
@@ -348,7 +240,7 @@ class InternetExplorerAutoITBlock(object):
             Sleep(20000)
             Send("!{}")
 
-        """.format(str(self.counter),
+        """.format(str(self.csh.counter.current()),
                     self.destination_url,
                     "{F4}"
                     )
@@ -398,17 +290,5 @@ class InternetExplorerAutoITBlock(object):
         return textwrap.dedent(end_func)
 
 
-    def create(self):
-        """ 
-        Grabs all the output from the respective functions and builds the AutoIT output
-        """
-
-        # Add in the constructor calls
-
-        autoIT_script = (self.func_dec() +
-                        self.open_internetexplorer() +
-                        self.close_internetExplorer()
-                        )
-
-        return autoIT_script
+    
 

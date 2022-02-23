@@ -12,39 +12,6 @@
  Takes a supplied text file for the Sheepl to type
  the master script will already define the typing speed as part of the master declarations
 
-    ##############################################
-        Add in Task Specific Notes Here
-    ##############################################
-
- General Notes:
-    The textwrap import is used to keep the AutoIT functions indented in code
-    as this messes with the python code (back off OCD) when it's manually
-    appearing to hang outside of the class declarations and also stops code collapse in IDEs.
-    So when creating code specific to the AutoIT functions just use tabs to indent insitu
-    and the textwarp library will strip all leading tabs from the beginning of the AutoIT block.
-    Also uses textwrap.indent() to add indentation to 'Send' commands in text_typing_block()
-
- Conventions:
-    Use 'AutoIT' in code comments and class names and 'autoIT' when using as part of variable names
-
- Modes:
-    Interactive Mode
-        This uses the task module assign task requirements
-        Add additional CMD functions using do_<argument>
-        Once all the arguments are complete
-        build the do_complete function out by passing the arguments
-        as keywords to the staticmethod of the task object
-        <TaskName>.create_autoIT_block(self.csh,
-                                        # add in other arguments
-                                        # for object constructor
-                                        # --------------------->
-                                        parm1=self.parm1_value,
-                                        parm2=self.parm3_value
-                                        # --------------------->
-                                        )
-    Non-Interactive Profile
-        This takes an input from the sheepl object
-        and this creates a Profile() object. See profile.py
 """
 
 __author__ = "Matt Lorentzen @lorentzenman"
@@ -61,12 +28,7 @@ import textwrap
 from utils.base.base_cmd_class import BaseCMD
 
 
-#######################################################################
-#  Task CMD Class Module Loaded into Main Sheepl Console
-#######################################################################
-
-
-class TaskConsole(BaseCMD):
+class CommandShell(BaseCMD):
     """
     Inherits from BaseCMD
         This parent class contains:
@@ -79,22 +41,31 @@ class TaskConsole(BaseCMD):
     def __init__(self, csh, cl):
 
         # Calling super to inherit from the BaseCMD Class __init__
-        super(TaskConsole, self).__init__(csh, cl)
+        super(CommandShell, self).__init__(csh, cl)
 
         # Override the defined task name
         self.taskname = 'CommandShell'
+        
+        # current Sheepl Object
+        # which might need to be renamed to Sheepl
+        self.csh = csh
+        # current colour object
+        self.cl = cl
+
 
         # Overrides Base Class Prompt Setup
-
         if csh.creating_subtasks == True:
-            print("creating subtasks >>>>>>>>")
+            print("[^] creating subtasks >>>>>>>>")
             self.baseprompt = cl.yellow('[>] Creating subtask\n{} > command >: '.format(csh.name.lower()))
         else:
             self.baseprompt = cl.yellow('{} > command >: '.format(csh.name.lower()))
 
         self.prompt = self.baseprompt
-
-
+        # list to hold commands
+        self.commands = []
+        # track subtasks
+        self.subtask = False
+        
         # creating my own
         self.introduction = """
         ----------------------------------
@@ -104,14 +75,30 @@ class TaskConsole(BaseCMD):
         2: Add in commands using cmd
         3: Complete the interaction using 'complete'
         """
-        print(textwrap.dedent(self.introduction))
+        
+        self.indent_space = '    '
 
         # ----------------------------------- >
         #      Task Specific Variables
         # ----------------------------------- >
 
         # List to hold commands for current interaction
-        self.commands = []
+        # some tasks require specific variables to be init here
+
+
+        # ----------------------------------- >
+        # now call the loop if we are in interactive mode by checking 
+        # if we are parsing JSON
+        
+        if not self.csh.json_parsing:
+            # call the intro and then start the loop
+            print(textwrap.dedent(self.introduction))
+            self.cmdloop()
+
+
+    #######################################################################
+    #  CommandShell Console Commands
+    #######################################################################
 
 
     def do_new(self, arg):
@@ -180,16 +167,13 @@ class TaskConsole(BaseCMD):
         >> Check the AutoIT constructor requirements
         """
 
+        # rather than call another object - this just needs to be a set of commands
+
+        
         # Call the static method in the task object
         if self.taskstarted:
             if self.commands:
-                CommandShell.create_autoIT_block(self.csh,
-                                        # add in other arguments
-                                        # for object constructor
-                                        # --------------------->
-                                        cmd=self.commands
-                                        # --------------------->
-                                        )
+                self.create_autoIT_block()
             else:
                 print("{} There are currently no commands assigned".format(self.cl.red("[!]")))
                 print("{} Assign some commands using 'cmd <command>'".format(self.cl.red("[-]")))
@@ -202,102 +186,61 @@ class TaskConsole(BaseCMD):
         self.commands = []
 
 
-#######################################################################
-#  CommandShell Class Definition
-#######################################################################
+    ######################################################################
+    # CommandShell AutoIT Block Definition
+    #######################################################################
 
 
-class CommandShell:
-
-    def __init__(self, csh, cl, **kwargs):
-        """
-        Initial object setup
-        """
-        self.__dict__.update(kwargs)
-
-        self.csh = csh
-        self.subtask = False
-        self.commands = []
-
-        if csh.interactive == True:
-            # create the task based sub console
-            self.TaskConsole = TaskConsole(csh, cl)
-            self.TaskConsole.cmdloop()
-
-
-    # --------------------------------------------------->
-    #   End CommandShell Constructor
-    # --------------------------------------------------->
-
-    # --------------------------------------------------->
-    #   CommandShell Static Method
-    # --------------------------------------------------->
-
-    """
-    These are all the elements that get passed into the
-    @static method as keyword arguments
-    Essentially, this is everything that needs to be passed
-    to create the InternetExplorer object
-
-    Parse the 'kwargs' dictionary for the arguments
-    """
-
-    @staticmethod
-    def create_autoIT_block(csh, **kwargs):
+    def create_autoIT_block(self):
         """
         Creates the AutoIT Script Block
-        Note :
-            Kwargs returns a dictionary
-            do these values can be referenced
-            by the keys directly
-
-        This now creates an instance of the object with the correct
-        counter tracker, and then appends as a task
-        Note : add in additional constructor arguments as highlighted
-               which get passed in from the 'kwargs' dictionary
-
+        csh.add_tasks takes two positional arguments
+            commandname_{counter}, and task
         """
 
-        csh.add_task('CommandShell_' + str(csh.counter.current()),
-                                CommandShellAutoITBlock(
-                                csh,
-                                str(csh.counter.current()),
-                                # add in other arguments
-                                # for object constructor
-                                # --------------------->
-                                kwargs["cmd"]
-                                # --------------------->
-                                ).create()
-                            )
+        # check to see if JSON profile parsing
+        if self.csh.json_parsing == True:
+            print("[*] JSON Profile detected - calling 'parse_json_profile' function")
+
+        current_counter = str(self.csh.counter.current())
+        self.csh.add_task('CommandShell_' + current_counter, self.create_autoit_function())
+
+
+
+    def create_autoit_function(self):
+        """
+        Grabs all the output from the respective functions and builds the AutoIT output
+        """
+
+        autoIT_script = (
+            self.autoit_function_open() +
+            self.open_commandshell() +
+            self.text_typing_block() +
+            self.close_commandshell()
+        )
+
+        return autoIT_script
+
+
+    def parse_json_profile(self, **kwargs):
+        """
+        Takes kwargs in and build out task variables when using JSON profiles
+        this function sets the various object attributes in the same way
+        that the interactive mode does
+        """
+    
+        print("[%] Setting attribures from JSON Profile")
+        # This snippet takes the keys ignoring the first key which is task and then shows
+        # what should be set in the kwargs parsing. 
+        print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
+        self.commands = kwargs["cmd"]
+        print(f"[*] Setting the commands attribure to {self.commands}")
 
     # --------------------------------------------------->
-    #   End CommandShell Static Method
-    # --------------------------------------------------->
+    # Create Open Block
 
 
-######################################################################
-#  CommandShell AutoIT Block Definition
-#######################################################################
-
-
-class CommandShellAutoITBlock(object):
-    """
-    Creates an AutoIT Code Block based on the current counter
-    then returns this to Task Console which pushes this upto the Sheepl Object
-    with a call to create.
-    String returns are pushed through (textwarp.dedent) to strip off indent tabs
-    """
-
-
-    def __init__(self, csh, counter, commands):
-
-        self.csh = csh
-        self.counter = counter
-        self.indent_space = '    '
-        self.commands = commands
-
-
-    def func_dec(self):
+    def autoit_function_open(self):
         """
         Initial Entrypoint Definition for AutoIT function
         """
@@ -318,11 +261,14 @@ class CommandShellAutoITBlock(object):
         # of subtasking, is from the parent
 
         if self.csh.creating_subtasks == False:
-            function_declaration += "CommandShell_{}()".format(str(self.counter))
+            function_declaration += "CommandShell_{}()".format(self.csh.counter.current())
 
 
         return textwrap.dedent(function_declaration)
 
+
+    # --------------------------------------------------->
+    # Define AutoIT Function
 
     def open_commandshell(self):
         """
@@ -361,10 +307,13 @@ class CommandShellAutoITBlock(object):
             EndIf
 
 
-        """.format(str(self.counter), "{ENTER}")
+        """.format(self.csh.counter.current(), "{ENTER}")
 
         return textwrap.dedent(_open_commandshell)
 
+
+    # --------------------------------------------------->
+    # Typing Ouput
 
     def text_typing_block(self):
         """
@@ -390,6 +339,9 @@ class CommandShellAutoITBlock(object):
 
         return textwrap.indent(typing_text, self.indent_space)
 
+    
+    # --------------------------------------------------->
+    # Close AutoIT Function
 
     def close_commandshell(self):
         """
@@ -403,17 +355,3 @@ class CommandShellAutoITBlock(object):
         """
 
         return textwrap.dedent(end_func)
-
-
-    def create(self):
-        """
-        Grabs all the output from the respective functions and builds the AutoIT output
-        """
-
-        autoIT_script = (self.func_dec() +
-                        self.open_commandshell() +
-                        self.text_typing_block() +
-                        self.close_commandshell()
-                        )
-
-        return autoIT_script

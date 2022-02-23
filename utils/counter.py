@@ -31,7 +31,7 @@ class Counter(object):
         """
         Prints the current counter value
         """
-        return self.counter
+        return str(self.counter)
 
 
     

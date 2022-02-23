@@ -8,47 +8,9 @@
 
 """
  Creates the autoIT stub code to be passed into the master compile
-
- : Takes a supplied text file for the Sheepl to type
- : the master script will already define the typing speed as part of the master declarations
-
- ##############################################
-        Add in Task Specific Notes Here
- ##############################################
-
- General Notes:
-    The textwrap import is used to keep the AutoIT functions indented in code
-    as this messes with the python code (back off OCD) when it's manually 
-    appearing to hang outside of the class declarations and also stops code collapse in IDEs.
-    So when creating code specific to the AutoIT functions just use tabs to indent insitu
-    and the textwarp library will strip all leading tabs from the beginning of the AutoIT block.
-    Also uses textwrap.indent() to add indentation to 'Send' commands in text_typing_block()
-
- Conventions:
-    Use 'AutoIT' in code comments and class names and 'autoIT' when using as part of variable names
-
- Modes:
-    Interactive Mode
-        This uses the task module assign task requirements
-        Add additional CMD functions using do_<argument>
-        Once all the arguments are complete
-        build the do_complete function out by passing the arguments
-        as keywords to the staticmethod of the task object
-        <TaskName>.create_autoIT_block(self.csh, 
-                                        # add in other arguments
-                                        # for object constructor
-                                        # ---------------------> 
-                                        parm1=self.parm1_value,
-                                        parm2=self.parm3_value
-                                        # ---------------------> 
-                                        )
-    Non-Interactive Profile
-        This takes an input from the sheepl object
-        and this creates a Profile() object. See profile.py
+ Takes a supplied text file for the Sheepl to type into a wordocument
 
 """
-
-
 __author__ = "Matt Lorentzen @lorentzenman"
 __license__ = "MIT"
 
@@ -61,12 +23,7 @@ import textwrap
 from utils.base.base_cmd_class import BaseCMD
 
 
-#######################################################################
-#  Task CMD Class Module Loaded into Main Sheepl Console
-#######################################################################
-
-
-class TaskConsole(BaseCMD):
+class WordDocument(BaseCMD):
     """
     Inherits from BaseCMD
         This parent class contains:
@@ -79,13 +36,22 @@ class TaskConsole(BaseCMD):
     def __init__(self, csh, cl):
 
         # Calling super to inherit from the BaseCMD Class __init__
-        super(TaskConsole, self).__init__(csh, cl)
+        super(WordDocument, self).__init__(csh, cl)
 
         # Override the defined task name
         self.taskname = 'WordDocument'
 
-        # Overrides Base Class Prompt Setup 
-        self.baseprompt = cl.yellow('{} > worddocument >: '.format(csh.name.lower()))      
+        self.csh = csh
+        # current colour object
+        self.cl = cl
+        
+         # Overrides Base Class Prompt Setup
+        if csh.creating_subtasks == True:
+            print("[^] creating subtasks >>>>>>>>")
+            self.baseprompt = cl.yellow('[>] Creating subtask\n{} > command >: '.format(csh.name.lower()))
+        else:
+            self.baseprompt = cl.yellow('{} > worddocument >: '.format(csh.name.lower()))
+
         self.prompt = self.baseprompt
 
         # booleans to enforce requirements
@@ -102,13 +68,33 @@ class TaskConsole(BaseCMD):
         3: Complete the document using 'complete'
         """
         print(textwrap.dedent(self.introduction))
+        
+        self.indent_space = '    '
 
         # ----------------------------------- >
         #      Task Specific Variables
         # ----------------------------------- >
 
-        # Create empty list to hold all input files
-        self.input_files = []
+        self.save_name = ""
+        self.input_file = None
+        self.typing_block = ''
+
+        # AutoIT header file
+        self.autoIT_include_statement = "#include <Word.au3>"
+
+        # might be good to uplift this to the base class as
+        # all modules might want the option
+        # Check to make sure it's not already there, and if not add
+        if not self.autoIT_include_statement in self.csh.autoIT_UDF_includes:
+            self.csh.autoIT_UDF_includes.append(self.autoIT_include_statement)
+
+        # ----------------------------------- >
+        # Now call start
+        self.cmdloop()
+
+    ########################################################################
+    # WordDocument Console Commands
+    ########################################################################
 
 
     def do_new(self, arg):
@@ -156,7 +142,11 @@ class TaskConsole(BaseCMD):
             if inputf:
                 if self.taskstarted:
                     print("[+] Assigning '{}' for typing ".format(inputf))
-                    self.input_file = inputf
+                    
+                    # now open and read this file and append to the 
+                    # typing block
+                    with open(inputf) as f:
+                        self.typing_block += (f.read().strip())
                 else:
                     print(self.cl.red("[!] <ERROR> You need to start a new WordDocument Interaction."))
                     print(self.cl.red("[!] <ERROR> Start this with 'new' from the menu."))
@@ -177,81 +167,29 @@ class TaskConsole(BaseCMD):
         print("task close out and write object for :" + self.csh.name)
         print("[!] Completing Task : {}".format(self.taskname))
         # >>>>>>>>>>>>>>>>>  COMMITS THE DOC <<<<<<<<<<<<<<<<<<<<<
-        """
-        Instantiates WordDocumentAutoITBlock() as an object, then passes the 
-        word_document save name created in 'new' and then passes in the typing block
-        created from input_file
-        WordDocumentAutoITBlock(counter, typing_block, save_name)
-        """
-
-        # Call the static method in the task object
+        
+        # Here you can perform some checks based on what the task needs        
         if self.taskstarted:
-            WordDocument.create_autoIT_block(self.csh, 
-                                    # add in other arguments
-                                    # for object constructor
-                                    # ---------------------> 
-                                    #input_file = self.input_file,
-                                    save_name = self.save_name,
-                                    input_file = self.input_file
-
-                                    # ---------------------> 
-                                    )
+            if self.typing_block:
+                self.create_autoIT_block()
+            else:
+                print("{} Nothing has been set to type into the document - set input_file".format(self.cl.red("[!]")))
+                return None
+            
 
         # now reset the tracking values and prompt
         self.complete_task()
 
+        # reset various inputs when new interaction
+        self.save_name = ""
+        self.typing_block = ""
 
-#######################################################################
-#  WordDocument Class Definition
-#######################################################################
-
-
-class WordDocument:
-
-    def __init__(self, csh, cl, **kwargs):
-        """
-        Initial object setup
-        """
-        self.__dict__.update(kwargs)
         
-        self.csh = csh
+    #######################################################################
+    #  WordDocument AutoIT Block Definition
+    #######################################################################
 
-        # Check if this task requires an AutoIT Specifc UDF
-        # this gets declared here and then pushed into the master
-        # if not then this can be deleted
-        # Sheepl AutoIT include header list as part of the 'csh' object
-
-        self.autoIT_include_statement = "#include <Word.au3>"
-        
-        # Check to make sure it's not already there, and if not add
-        if not self.autoIT_include_statement in csh.autoIT_UDF_includes:
-            csh.autoIT_UDF_includes.append(self.autoIT_include_statement)
-
-        if csh.interactive == True:
-            # create the task based sub console
-            self.TaskConsole = TaskConsole(csh, cl)
-            self.TaskConsole.cmdloop()  
-
-
-    # --------------------------------------------------->
-    #   End WordDocument Constructor
-    # --------------------------------------------------->
-
-    # --------------------------------------------------->
-    #   WordDocument Static Method
-    # --------------------------------------------------->
-
-    """
-    These are all the elements that get passed into the 
-    @static method as keyword arguments
-    Essentially, this is everything that needs to be passed
-    to create the WordDocument object
-
-    Parse the 'kwargs' dictionary for the arguments
-    """
-
-    @staticmethod
-    def create_autoIT_block(csh, **kwargs):
+    def create_autoIT_block(self):
         """
         Creates the AutoIT Script Block
         Note :
@@ -259,57 +197,39 @@ class WordDocument:
             do these values can be referenced
             by the keys directly
         """
-       
+        
+        current_counter = str(self.csh.counter.current())
+        self.csh.add_task('WordDocument_' + current_counter, self.create_autoit_function())
 
+
+    def create_autoit_function(self):
+        """ 
+        Grabs all the output from the respective functions and builds the AutoIT output
         """
-        This now creates an instance of the object with the correct
-        counter tracker, and then appends as a task
-        Note : add in additional constructor arguments as highlighted
-               which get passed in from the 'kwargs' dictionary
 
+        autoIT_script = (
+            self.autoit_function_open() +
+            self.new_document() +
+            self.text_typing_block() +
+            self.save_file() +
+            self.close_word()
+        )
+
+        return autoIT_script
+
+
+    def parse_json_profile(csh, **kwargs):
         """
+        Takes kwargs in and build out task variables
+        """
+        for k, v in kwargs.items():
+            print(k, v)
 
-        csh.add_task('WordDocument_' + str(csh.counter.current()),
-                                WordDocumentAutoITBlock(
-                                str(csh.counter.current()),
-                                # add in other arguments
-                                # for object constructor
-                                # ---------------------> 
-                                #kwargs["input_file"],
-                                kwargs["save_name"],
-                                kwargs["input_file"]
-                                # ---------------------> 
-                                ).create()
-                            )
+    # --------------------------------------------------->
+    # Create Open Block
 
 
-#######################################################################
-#  WordDocument AutoIT Block Definition
-#######################################################################
-
-
-class WordDocumentAutoITBlock(object):
-    """
-    Creates an AutoIT Code Block based on the current counter
-    then returns this to Task Console which pushes this upto the Sheepl Object
-    with a call to create.
-    String returns are pushed through (textwarp.dedent) to strip off indent tabs
-    """
-
-    def __init__(self, counter, save_name, input_file):
-
-        self.counter = counter
-        self.indent_space = '    '
-        self.save_name = save_name
-        self.input_file = input_file
-        self.typing_block = ''
-        with open(input_file) as f:
-            self.typing_block += (f.read().strip())
-
-
-
-
-    def func_dec(self):
+    def autoit_function_open(self):
         """
         Initial Entrypoint Definition for AutoIT function
         when using textwrap.dedent you need to add in the backslash
@@ -322,10 +242,9 @@ class WordDocumentAutoITBlock(object):
         ; <         Word Interaction
         ; < ----------------------------------- >
 
-
-        WordDocument_{}()
-
-        """.format(self.counter)
+        """
+        if self.csh.creating_subtasks == False:
+            function_declaration += "WordDocument_{}()".format(str(self.csh.counter.current()))
 
         return textwrap.dedent(function_declaration)
 
@@ -349,10 +268,12 @@ class WordDocumentAutoITBlock(object):
             WinWaitActive("[CLASS:OpusApp]")
             SendKeepActive("[CLASS:OpusApp]")
 
-        """.format(self.counter, self.save_name)
+        """.format(self.csh.counter.current(), self.save_name)
 
         return textwrap.dedent(new_document)
 
+    # --------------------------------------------------->
+    # Typing Ouput
 
     def text_typing_block(self):
         """
@@ -369,6 +290,10 @@ class WordDocumentAutoITBlock(object):
         # now loop round the input_text
         # some funkyness here to treat the carriage returns in the file as enter commands
         # represents how someone would use the enter key when typing
+
+        # self.typing_block is part of the init of the object and gets
+        # populated by the console when the file is read
+        # TODO - this will get pushed through the typing object
 
         for l in self.typing_block.splitlines():
             # check if this is an empty line -> ie an enter key
@@ -404,6 +329,9 @@ class WordDocumentAutoITBlock(object):
 
         return textwrap.indent(textwrap.dedent(command_save_file), self.indent_space)
 
+    
+    # --------------------------------------------------->
+    # Close AutoIT Function
 
     def close_word(self):
         """
@@ -421,16 +349,3 @@ class WordDocumentAutoITBlock(object):
         return textwrap.dedent(end_func)
 
 
-    def create(self):
-        """ 
-        Grabs all the output from the respective functions and builds the AutoIT output
-        """
-
-        autoIT_script = (self.func_dec() +
-                        self.new_document() +
-                        self.text_typing_block() +
-                        self.save_file() +
-                        self.close_word()
-                        )
-
-        return autoIT_script

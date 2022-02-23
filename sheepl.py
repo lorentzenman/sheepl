@@ -106,7 +106,7 @@ def parse_arguments():
 
 
 def main():
-    banner("2.1")
+    banner("2.2")
     # hr = "------------------------------------"
     # counter below needs to be added as part of the Sheepl Object
     # this should get automatically incremented either based on the

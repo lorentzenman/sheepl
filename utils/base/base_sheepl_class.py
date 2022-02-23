@@ -44,7 +44,11 @@ class Sheepl(object):
         self.total_time = total_time
         self.loop = loop
         self.cl = cl
+        # interactive switch
         self.interactive = interactive
+        # boolean for JSON profile input
+        self.json_parsing = False
+        
         # needs to be a string for JSON
         self.icon = "True"
         self.birth = False
@@ -60,9 +64,9 @@ class Sheepl(object):
         self.tasks = {}
 
         # boolean to track subtask status and calling parent class
-
         self.creating_subtasks = False
         self.parent_task = ''
+        
         # empty subtask dictionary to hold assigned tasks
         self.subtasks = {}
 
@@ -86,6 +90,9 @@ class Sheepl(object):
 
         # Whether the task list loops or runs once
         print("[>] Looping set to : {}".format(self.cl.red(str(self.loop))))
+
+        # Display JSON Parsling
+        print("[>] JSON Parsing : {}".format(self.cl.red(str(self.json_parsing))))
 
         # AutoIT Include Header List
         self.autoIT_include_statement = ''
@@ -191,7 +198,7 @@ class Sheepl(object):
         # checks to see whether we are subtasking
         if self.creating_subtasks == False:
             self.tasks[task] = output
-           # print(self.tasks)
+            #print(self.tasks)
         else:
             self.subtasks[task] = output
         # increment the counter value
