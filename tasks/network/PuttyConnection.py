@@ -72,7 +72,6 @@ class PuttyConnection(BaseCMD):
         3: Add in commands to type
         4: Complete the interaction using 'complete'
         """
-        print(textwrap.dedent(self.introduction))
         self.indent_space = '    '
 
         # ----------------------------------- >
@@ -89,8 +88,13 @@ class PuttyConnection(BaseCMD):
         self.assigned_credentials = False
 
         # ----------------------------------- >
-        # Now call start
-        self.cmdloop()
+        # now call the loop if we are in interactive mode by checking 
+        # if we are parsing JSON
+
+        if not self.csh.json_parsing:
+            # call the intro and then start the loop
+            print(textwrap.dedent(self.introduction))
+            self.cmdloop()
 
     #######################################################################
     # PuttyConnection Console Commands
@@ -110,9 +114,7 @@ class PuttyConnection(BaseCMD):
             # OCD Line break
             print()
             self.prompt = self.cl.blue("[*] {}_{}".format("PuttyConnection", str(self.csh.counter.current()))) + "\n" + self.baseprompt 
-            # reset the assigned commands
             
-
 
     def do_credentials(self, arg):
         """
@@ -268,7 +270,7 @@ class PuttyConnection(BaseCMD):
         Grabs all the output from the respective functions and builds the AutoIT output
         """
         autoIT_script = (
-            self.func_dec() +
+            self.autoit_function_open() +
             self.open_puttyconnection() +
             self.text_typing_block() +
             self.close_puttyconnection()
@@ -277,17 +279,40 @@ class PuttyConnection(BaseCMD):
         return autoIT_script
 
 
-    def parse_json_profile(csh, **kwargs):
+    def parse_json_profile(self, **kwargs):
         """
-        Takes kwargs in and build out task variables
+        Takes kwargs in and build out task variables when using JSON profiles
+        this function sets the various object attributes in the same way
+        that the interactive mode does
         """
-        for k, v in kwargs.items():
-            print(k, v)
+    
+        print("[%] Setting attributes from JSON Profile")
+        # This snippet takes the keys ignoring the first key which is task and then shows
+        # what should be set in the kwargs parsing. 
+        print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
 
+        try:
+            self.computer = kwargs["computer"]
+            self.username = kwargs["username"]
+            self.password = kwargs["password"]
+            self.commands = kwargs["cmd"]
 
+            # if multiple commands are sent then the raise an error and show that the RunCommands only take the latest
+            # parse the list and grab the first one
+            print(f"[*] Setting the command attribute : {self.computer}")
+            print(f"[*] Setting the command attribute : {self.username}")
+            print(f"[*] Setting the command attribute : {self.password}")
+            print(f"[*] Setting the command attribute : {self.commands}")
+        
+        except:
+            print(self.cl.red("[!] Error Setting JSON Profile attributes, check matching key values in the profile"))
+
+        # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
+        self.create_autoIT_block()
+
+    
     # --------------------------------------------------->
     # Create Open Block
-
 
     def autoit_function_open(self):
         """

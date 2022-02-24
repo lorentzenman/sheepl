@@ -238,7 +238,14 @@ class WordDocument(BaseCMD):
         self.save_name = kwargs["save_name"]
 
         print(f"[*] Setting the input file attribute : {self.input_file}")
-        print(f"[*] Setting the input file attribute : {self.save_name}")
+        print(f"[*] Setting the save filename attribute : {self.save_name}")
+
+        # now read the input file and set 'self.typing_block' the contents
+        # TODO - look at making this into a path object using PathLib (checks for valid path as well)
+        #      - next version implement typing object
+        
+        with open(self.input_file) as f:
+            self.typing_block += (f.read().strip()) 
 
         # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
         self.create_autoIT_block()
