@@ -71,7 +71,6 @@ class RemoteDesktop(BaseCMD):
         2: Assign subtasks using 'subtask'
         3: Complete the interaction using 'complete'
         """
-        print(textwrap.dedent(self.introduction))
 
         self.indent_space = '    '
         self.commands = []
@@ -91,8 +90,13 @@ class RemoteDesktop(BaseCMD):
         self.subtask_supported = True         
 
         # ----------------------------------- >
-        # Now call start
-        self.cmdloop()
+        # now call the loop if we are in interactive mode by checking 
+        # if we are parsing JSON
+
+        if not self.csh.json_parsing:
+            # call the intro and then start the loop
+            print(textwrap.dedent(self.introduction))
+            self.cmdloop()
 
 
     ########################################################################
@@ -249,12 +253,39 @@ class RemoteDesktop(BaseCMD):
         return autoIT_script
 
 
-    def parse_json_profile(csh, **kwargs):
+    def parse_json_profile(self, **kwargs):
         """
-        Takes kwargs in and build out task variables
+        Takes kwargs in and build out task variables when using JSON profiles
+        this function sets the various object attributes in the same way
+        that the interactive mode does
         """
-        for k, v in kwargs.items():
-            print(k, v)
+    
+        print("[%] Setting attributes from JSON Profile")
+        # This snippet takes the keys ignoring the first key which is task and then shows
+        # what should be set in the kwargs parsing. 
+        print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
+
+        try:
+            self.computer = kwargs["computer"]
+            self.username = kwargs["username"]
+            self.password = kwargs["password"]
+            self.subtasks = kwargs["subtasks"]          
+
+            print(f"[*] Setting the command attribute : {self.computer}")
+            print(f"[*] Setting the command attribute : {self.username}")
+            print(f"[*] Setting the command attribute : {self.password}")
+            print(f"[*] Setting the command attribute : {self.subtasks}")
+
+            # this now needs to parse the list of dictionaries inside the subtasks key and then build
+            # this second subtasks dictionary is actually part of the Sheepl object self.csh.subtasks, so these dictionaries
+            # need to get pushed to self.csh.subtasks
+           
+        
+        except:
+            print(self.cl.red("[!] Error Setting JSON Profile attributes, check matching key values in the profile"))
+
+        # once these have all been set in here, then self.create_autoIT_block() gets called which pushes the task on the stack
+        self.create_autoIT_block()
 
     # --------------------------------------------------->
     # Create Open Block

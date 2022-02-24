@@ -297,8 +297,6 @@ class PuttyConnection(BaseCMD):
             self.password = kwargs["password"]
             self.commands = kwargs["cmd"]
 
-            # if multiple commands are sent then the raise an error and show that the RunCommands only take the latest
-            # parse the list and grab the first one
             print(f"[*] Setting the command attribute : {self.computer}")
             print(f"[*] Setting the command attribute : {self.username}")
             print(f"[*] Setting the command attribute : {self.password}")
