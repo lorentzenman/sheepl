@@ -225,7 +225,7 @@ class CommandShell(BaseCMD):
         that the interactive mode does
         """
     
-        print("[%] Setting attribures from JSON Profile")
+        print("[%] Setting attributes from JSON Profile")
         # This snippet takes the keys ignoring the first key which is task and then shows
         # what should be set in the kwargs parsing. 
         print(f"[-] The following keys are needed for this task : {[x for x in list(kwargs.keys())[1:]]}")
