@@ -1,7 +1,7 @@
 {
   "sheepl" :
   {
-    "name": "Technician",
+    "name": "Scribe",
     "total_time": "14m",
     "typing_speed": 85,
     "loop": "True",
@@ -26,6 +26,17 @@
         "task"  : "WordDocument",
         "input_file" : "content/if.txt",
         "save_name" : "c:\\users\\matt\\Desktop\\if123.doc"
+      },
+      {
+        "task"  : "PuttyConnection",
+        "computer" : "192.168.1.1",
+        "username" : "admin",
+        "password" : "S3cre3tP@44w0rd!",
+        "cmd" : [
+          "ifconfig",
+          "uname -a",
+          "find / -type f -name '*.txt' -exec grep -i 'pass' {} \\;"
+        ]
       }
     ]
   }

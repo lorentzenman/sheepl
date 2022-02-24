@@ -1,12 +1,32 @@
 {
   "sheepl" :
   {
-    "name": "Stoke",
-    "total_time": "3m",
-    "typing_speed": 55,
+    "name": "Birth",
+    "total_time": "14m",
+    "typing_speed": 85,
     "loop": "True",
     "icon": "False",
     "tasks": [
+      {
+        "task"  : "CommandShell",
+        "cmd" : [
+          "ipconfig /all",
+          "whoami /groups",
+          "netstat -anto"
+        ]    
+      },
+      {
+        "task"  : "PowerShell",
+        "cmd" : [
+          "$psversiontable"
+        ]
+      },
+      {
+        "task"  : "RunCommand",
+        "cmd" : [
+          "\\\\servernothere"
+        ]
+      },
       { 
         "task"  : "RemoteDesktop",
         "computer" : "1.1.1.1",
@@ -21,23 +41,8 @@
                 "ls",
                 "$psversiontable"
               ]
-            },
-            {
-              "task" : "CommandShell",
-              "cmd" : [
-                "netstat -atno",
-                "hostname",
-                "systeminfo"
-              ]
-            }
+            }  
           ]
-      },
-      {
-        "task"  : "PowerShell",
-        "cmd" : [
-          "gwmi win32_service",
-          "ls c:\\"
-        ]
       }
     ]
   }
