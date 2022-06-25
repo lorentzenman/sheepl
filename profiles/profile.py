@@ -130,7 +130,7 @@ class Profile(object):
 
 
             # dictionary comprehension
-            sheepl_task.create_autoIT_block(self.csh, **subtask_arguments)
+            sheepl_task.create_autoIT_block()
 
            # print(self.csh.subtasks.items())
            

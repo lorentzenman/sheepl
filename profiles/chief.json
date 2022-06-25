@@ -1,8 +1,8 @@
 {
   "sheepl" :
   {
-    "name": "Birth",
-    "total_time": "14m",
+    "name": "Saint",
+    "total_time": "16m",
     "typing_speed": 85,
     "loop": "True",
     "icon": "False",
@@ -12,13 +12,15 @@
         "cmd" : [
           "ipconfig /all",
           "whoami /groups",
-          "netstat -anto"
+          "netstat -anto",
+          "setspn /Q http/*"
         ]    
       },
       {
         "task"  : "PowerShell",
         "cmd" : [
-          "$psversiontable"
+          "$psversiontable",
+          "get-service | ? {$_.State -eq 'Running'"
         ]
       },
       {
@@ -31,18 +33,8 @@
         "task"  : "RemoteDesktop",
         "computer" : "1.1.1.1",
         "username" : "user@domain",
-        "password" : "######",
-        "subtasks" : [
-            {
-              "task" : "PowerShell",
-              "cmd" : [
-                "write-host 'I am a subtask'",
-                "gwmi win32_bios",
-                "ls",
-                "$psversiontable"
-              ]
-            }  
-          ]
+        "password" : "######"
+        
       }
     ]
   }
