@@ -69,10 +69,13 @@ The following video is quick demo of Sheepl 2.0 as the current release.
 [![Alt text](https://img.youtube.com/vi/S4Zvw-IG1Pc/0.jpg)](https://www.youtube.com/watch?v=S4Zvw-IG1Pc)
 
 
+## 44Con Workshop Video
+
+(https://www.youtube.com/watch?v=ZErvmrP4UCg)
+
+
 ## Acknowledgements
 * The amazing AutoIT Language https://www.autoitscript.com
 * Jonathan Bennett for creating ^^
 * The amazing Python3 language https://www.python.org
 * Guido for creating ^^
-* Fellow Spiders for all the support
-* People who have reported bugs and made suggestions to improve the tool
