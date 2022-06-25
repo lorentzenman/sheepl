@@ -6,7 +6,7 @@ The Core Sheepl Program
 
 __author__ = "Matt Lorentzen @lorentzenman"
 __license__ = "MIT"
-__version__ = "2.0"
+__version__ = "2.3"
 
 
 import sys
@@ -84,9 +84,9 @@ def parse_arguments():
     profile_group.add_argument("--profile", type=argparse.FileType('r', encoding='UTF-8'), help="Specifies a profile and will import commands based on the JSON file")
 
     # Template Engine
-    template_engine = parser.add_argument_group('Template Engine', 'Used to create a "task" template with boiler plate code and CMD module')
-    template_engine.add_argument("--template", help="Name of the template")
-    template_engine.add_argument("--category", help="Path category for module : all base tasks start within 'tasks' automatically")
+    #template_engine = parser.add_argument_group('Template Engine', 'Used to create a "task" template with boiler plate code and CMD module')
+    #template_engine.add_argument("--template", help="Name of the template")
+    #template_engine.add_argument("--category", help="Path category for module : all base tasks start within 'tasks' automatically")
 
 
     # counts the supplied number of arguments and prints help if they are missing
@@ -106,7 +106,7 @@ def parse_arguments():
 
 
 def main():
-    banner("2.2")
+    banner("2.3")
     # hr = "------------------------------------"
     # counter below needs to be added as part of the Sheepl Object
     # this should get automatically incremented either based on the
@@ -135,36 +135,38 @@ def main():
         con.cmdloop()
 
 
+    # template functions need updating for the stub code so commenting out this feature for now.
+    # will fix in next push
     # Check if creating template stub file and category.
     # this should be replaced with pathlib functions
-    if args.template and not args.category:
-        print(cl.red("[!] You must specify a category eg 'network'"))
-        print("[>] If this path does not exist, then it will be created")
+    #if args.template and not args.category:
+    #    print(cl.red("[!] You must specify a category eg 'network'"))
+    #    print("[>] If this path does not exist, then it will be created")
 
-    elif args.template:
-        if not os.path.isdir('tasks/' + args.category.lower()):
-            print(cl.yellow("[!] Couldn't find this category : " + args.category.lower()))
-            print(cl.green("[!] Creating {} category path now.".format(args.category.lower())))
-            os.mkdir('tasks/' + args.category.lower())
-        else:
-            print("[>] Category already Exists : " + cl.red("tasks/" + args.category.lower()))
-            os.chdir('tasks/' + args.category.lower())
-            if not os.path.isfile(args.template + '.py'):
-                print("[!] Creating task template: {}".format(cl.green(args.template)))
-                CreateTemplate(args.template)
+    #elif args.template:
+    #    if not os.path.isdir('tasks/' + args.category.lower()):
+    #        print(cl.yellow("[!] Couldn't find this category : " + args.category.lower()))
+    #        print(cl.green("[!] Creating {} category path now.".format(args.category.lower())))
+    #        os.mkdir('tasks/' + args.category.lower())
+    #    else:
+    #        print("[>] Category already Exists : " + cl.red("tasks/" + args.category.lower()))
+    #        os.chdir('tasks/' + args.category.lower())
+    #        if not os.path.isfile(args.template + '.py'):
+    #            print("[!] Creating task template: {}".format(cl.green(args.template)))
+    #            CreateTemplate(args.template)
 
-            if os.path.isfile(args.template + '.py'):
-                print(cl.red("[!] Task template already exists : " + args.template))
-                # spam loop until yes or no is answered
-                while 1:
-                    replace_template = input("[?] Do you want to replace this file? <yes> <no> : ")
-                    if replace_template.lower() == "yes" or replace_template.lower() == "no":
-                        break
-                if replace_template.lower() == "yes":
-                    print("[!] Creating new task template : " + cl.green(args.template + '.py'))
-                    CreateTemplate(args.template)
-                else:
-                    print(cl.green("[!] Leaving orginal template intact"))
+    #        if os.path.isfile(args.template + '.py'):
+    #            print(cl.red("[!] Task template already exists : " + args.template))
+    #            # spam loop until yes or no is answered
+    #            while 1:
+    #                replace_template = input("[?] Do you want to replace this file? <yes> <no> : ")
+    #                if replace_template.lower() == "yes" or replace_template.lower() == "no":
+    #                    break
+    #            if replace_template.lower() == "yes":
+    #                print("[!] Creating new task template : " + cl.green(args.template + '.py'))
+    #                CreateTemplate(args.template)
+    #            else:
+    #                print(cl.green("[!] Leaving orginal template intact"))
 
 
     # create from JSON profile
