@@ -55,6 +55,7 @@ class BaseCMD(cmd.Cmd):
         self.prompt = ''
         self.taskname = ''
         self.subtask_supported = False
+        
 
 
     def do_back(self, arg):
@@ -178,8 +179,15 @@ class BaseCMD(cmd.Cmd):
     #   SubTask CMD Functions
     # --------------------------------------------------->
 
-    def do_subtask_list(self):
-        pass
+    def do_subtask_list(self, arg=None):
+        """ List out the subtasks assigned to the current RDP task """
+        # this was always crashing, and the reason is that the 
+        # cmd module needs the second argument. So adding this as None
+        # just runs the code below.
+        print("[*] Assigned the following subtasks to this RDP session")
+        for task in self.csh.subtasks.keys():
+            print(f"[-] {task}")
+  
 
 
     def do_subtask(self, st):
@@ -206,6 +214,10 @@ class BaseCMD(cmd.Cmd):
                 if st == task:
                     print(self.cl.blue("[>] Creating SubTask Assignment >> {}".format(st)))
                     self.csh.creating_subtasks = True
+                    # add the subtask to the tracking
+                    # need to empty tracking list each time a new RDP session task is 
+                    # assigned as well
+                    
                     self.csh.generate_task(task)
 
 
