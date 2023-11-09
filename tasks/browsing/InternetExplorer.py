@@ -59,7 +59,7 @@ class InternetExplorer(BaseCMD):
         else:
             self.baseprompt = cl.yellow('{} > runcommand >: '.format(csh.name.lower()))
 
-        self.prompt = self.basepromptt
+        self.prompt = self.baseprompt
 
         # creating my own 
         self.introduction = """
