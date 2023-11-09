@@ -169,7 +169,7 @@ class InternetExplorer(BaseCMD):
         """
 
         autoIT_script = (
-            self.func_dec() +
+            #self.func_dec() +
             self.open_internetexplorer() +
             self.close_internetExplorer()
         )
