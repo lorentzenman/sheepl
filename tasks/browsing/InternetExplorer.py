@@ -59,7 +59,7 @@ class InternetExplorer(BaseCMD):
         else:
             self.baseprompt = cl.yellow('{} > runcommand >: '.format(csh.name.lower()))
 
-        self.prompt = self.basepromptt
+        self.prompt = self.baseprompt
 
         # creating my own 
         self.introduction = """
@@ -169,7 +169,7 @@ class InternetExplorer(BaseCMD):
         """
 
         autoIT_script = (
-            self.func_dec() +
+            self.autoit_function_open() +
             self.open_internetexplorer() +
             self.close_internetExplorer()
         )
@@ -253,8 +253,8 @@ class InternetExplorer(BaseCMD):
             ; this is also where the IE interaction such as logging in etc will happen,
             ; spawning new tabs etc
             ; prob need a call out function to trigger a subroutine
-            Sleep(20000)
-            Send("!{}")
+            ;Sleep(20000)
+            ;Send("!{}")
 
         """.format(str(self.csh.counter.current()),
                     self.destination_url,
@@ -304,7 +304,3 @@ class InternetExplorer(BaseCMD):
         """
 
         return textwrap.dedent(end_func)
-
-
-    
-
