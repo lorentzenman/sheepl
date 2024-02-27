@@ -86,6 +86,7 @@ class SheeplConsole(MainConsole):
             # first check to see if we are already creating a Sheepl
             if self.birth:
                 print(self.cl.red("[!] <ERROR> Already creating a Sheepl named '{}'.".format(self.csh.name)))
+                return
 
             # check to see if the file exists already from a previous Sheepl creation
             output_base = "output/"
@@ -104,8 +105,6 @@ class SheeplConsole(MainConsole):
                 else:
                     print("[*] Leaving file : {} ".format(file_name))
                     return None
-
-
             else:
                 self.create_sheepl(name)
 
