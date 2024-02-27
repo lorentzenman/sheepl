@@ -59,7 +59,7 @@ class InternetExplorer(BaseCMD):
         else:
             self.baseprompt = cl.yellow('{} > runcommand >: '.format(csh.name.lower()))
 
-        self.prompt = self.basepromptt
+        self.prompt = self.baseprompt
 
         # creating my own 
         self.introduction = """
@@ -169,7 +169,7 @@ class InternetExplorer(BaseCMD):
         """
 
         autoIT_script = (
-            self.func_dec() +
+            #self.func_dec() +
             self.open_internetexplorer() +
             self.close_internetExplorer()
         )
